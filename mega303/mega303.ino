@@ -1,4 +1,6 @@
 #include "TimerOne.h"
+#include "patches.h"
+#include "Font.h"
 ///////////////////////////////////////////////////////////////////////////////
 // Input vars
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,10 +15,14 @@ typedef struct {
 
 // Pins
 
-
 #define dirPin 23
 #define tapButton 45
 Encoder enc = {41, 43};
+#define beatLEDRed 14
+#define beatLEDGreen 15
+#define xrst 20
+#define footSwitch 21
+
 uint8_t potPins[] = {8, 9, 10, 11, 12, 13, 14, 15};
 uint8_t potStates[8];
 // pins for columns
@@ -77,23 +83,43 @@ void setup() {
     Timer1.initialize(50000);
     Timer1.attachInterrupt(timed);
     soundModuleMode();
+    displayString("YES303");
+    pinMode(beatLEDRed, OUTPUT);
+    digitalWrite(beatLEDRed, HIGH);
     // midiSysEx(0x7F, 0x00, 0x3F);
     // setInstrument(11,64,2);
 }
+int ha = 0;
+int cnt = 0;
 
 void loop() {
     updateInput();
-    memcpy(LEDStates, buttonBuffer,16);
-	// if(cnt%100 == 1) printPots();
+    cnt++;
+    cnt %= (analogRead(8)/10)+2;
+    if(cnt < 2){
+        midiNoteOff(9, ha, 0);
+        int low = analogRead(10)/8;
+        int high = analogRead(9)/8;
+        if(low>high) ha = low;
+        else ha = random(high-low)+low;
+        midiNoteOn(9, ha, 100);
+
+    }
 }
 
 void timed(){
     cycleCount++;
-    if(cycleCount % 25 == 0 ){
+    // setLED(step,cycleCount%8, HIGH);
+    // setLED(step,(cycleCount+1)%8,LOW);
+
+    if(cycleCount % 18 == 0 ){
         step++;
-        step %= 16;
-        midiNoteOff(9, 69, 0);
-        midiNoteOn(9, 69, 100);
+        step%=16;
+        // setKit(abs(enc.val));
+        // displayString(String(enc.val));
+        // midiNoteOff(3,45,100);
+        // midiNoteOn(3,45,100);
+
     }
 }
 
@@ -104,7 +130,33 @@ void setInstrument(byte _part, byte _i, byte _j){
     midiByte(_j);
     // myBus.sendMessage( new ShortMessage(ShortMessage.PROGRAM_CHANGE, _part, _j, 0) ); // PG
 }
+void setKit(uint8_t _kit){
+    byte ha = (0xC0|9);
+    midiByte(ha);
+    Serial.println(ha, BIN);
+    // midiByte(9);
+    midiByte(_kit);
+}
 
+///////////////////////////////////////////////////////////////////////////////
+// 7 segs
+///////////////////////////////////////////////////////////////////////////////
+
+void displayString(String _s){
+    byte _segRows[] = {6, 3, 12, 13, 10, 15};
+    char _c;
+    uint8_t _index = 0;
+    for(int i = 0; i < 6; i++){
+        _c = _s.charAt(_index++);
+        if(_c == 46 && i > 0){
+            i--;
+            LEDStates[_segRows[i]] ^= 1 << 7;
+        }
+        else {
+            LEDStates[_segRows[i]] = ~FONT_DEFAULT[_c-32];
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // IO matrix
@@ -121,7 +173,7 @@ void setupInput(){
 	pinMode(enc.pinA, INPUT);
 	pinMode(enc.pinB, INPUT);
 	pinMode(tapButton, INPUT);
-	memset(LEDStates, 0, 16);
+	memset(LEDStates, 255, 16);
 	memset(buttonBuffer, 0, 16);
 	memset(buttonStates, 0, 16);
 }
