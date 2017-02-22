@@ -1,4 +1,6 @@
 #include "TimerOne.h"
+#include "TimerThree.h"
+
 #include "patches.h"
 #include "Font.h"
 ///////////////////////////////////////////////////////////////////////////////
@@ -78,16 +80,20 @@ uint16_t cycleCount = 0;
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
     Serial1.begin(31250);
+    Serial2.begin(31250);
+
 	Serial.begin(9600);
     setupInput();
     Timer1.initialize(50000);
     Timer1.attachInterrupt(timed);
+    Timer3.initialize(1000);
+    Timer3.attachInterrupt(checkEncoder);
     soundModuleMode();
     displayString("YES303");
     pinMode(beatLEDRed, OUTPUT);
     digitalWrite(beatLEDRed, HIGH);
-    // midiSysEx(0x7F, 0x00, 0x3F);
-    // setInstrument(11,64,2);
+    setKit(68);
+    setInstrument(11,64,2);
 }
 int ha = 0;
 int cnt = 0;
@@ -103,8 +109,8 @@ void loop() {
         if(low>high) ha = low;
         else ha = random(high-low)+low;
         midiNoteOn(9, ha, 100);
-
     }
+    // snifMidiIn();
 }
 
 void timed(){
@@ -116,26 +122,42 @@ void timed(){
         step++;
         step%=16;
         // setKit(abs(enc.val));
-        // displayString(String(enc.val));
         // midiNoteOff(3,45,100);
         // midiNoteOn(3,45,100);
+    }
+}
 
+
+void snifMidiIn(){
+    if(Serial2.available()){
+        Serial.println("|||||||||||");
+        byte _b = 0;
+        while(Serial2.available()){
+            _b = Serial2.read();
+            midiByte(_b);
+            Serial.print(_b, HEX);
+            Serial.print("  ");
+            Serial.println(_b, BIN);
+        }
     }
 }
 
 void setInstrument(byte _part, byte _i, byte _j){
     midiControlChange(_part, 00, _i); // CC00 64-73
     midiControlChange(_part, 32, 00); // derp
-    midiByte(0xC3);
+    midiByte(0xC0 | _part);
     midiByte(_j);
     // myBus.sendMessage( new ShortMessage(ShortMessage.PROGRAM_CHANGE, _part, _j, 0) ); // PG
 }
 void setKit(uint8_t _kit){
-    byte ha = (0xC0|9);
-    midiByte(ha);
-    Serial.println(ha, BIN);
-    // midiByte(9);
+    midiByte(0xC0 | 9);
     midiByte(_kit);
+}
+
+void printByte(byte _b){
+    Serial.print(_b, BIN);
+    Serial.print(" ");
+    Serial.println(_b, HEX);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,7 +202,6 @@ void setupInput(){
 
 void updateInput(){
 	updateMatrix();
-	checkEncoder();
 	bufferPots();
 }
 
