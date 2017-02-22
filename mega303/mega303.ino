@@ -2,65 +2,7 @@
 #include "TimerThree.h"
 
 #include "patches.h"
-#include "Font.h"
-///////////////////////////////////////////////////////////////////////////////
-// Input vars
-///////////////////////////////////////////////////////////////////////////////
-
-typedef struct {
-    uint8_t pinA;
-    uint8_t pinB;
-    uint8_t prev;
-	uint8_t tmp;
-    int val;
-} Encoder;
-
-// Pins
-
-#define dirPin 23
-#define tapButton 45
-Encoder enc = {41, 43};
-#define beatLEDRed 14
-#define beatLEDGreen 15
-#define xrst 20
-#define footSwitch 21
-
-uint8_t potPins[] = {8, 9, 10, 11, 12, 13, 14, 15};
-uint8_t potStates[8];
-// pins for columns
-uint8_t columnPins[] = {25, 27, 29, 31, 33, 35, 37, 39};
-// Pins for row multiplexer
-uint8_t rowMuxPins[] = {47, 49, 51, 53};
-// rows
-byte rowBytes[] = {
-	B00000000, // 000 aka 0
-	B00000010, // 100 aka 1
-	B00000100, // 010 aka 2
-	B00000110, // 110 aka 3
-	B00001000, // 001 aka 4
-	B00001100, // 011 aka 6
-	B00001110, // 111 aka 7
-	// same but for second mux chip
-	B00000001,
-	B00000011,
-	B00000101,
-	B00000111,
-	B00001001,
-	B00001010,
-	B00001011,
-	B00001101,
-	B00001111,
-};
-// next circuit version will use port manipulation...
-
-// LED column states
-byte LEDStates[16];
-byte buttonBuffer[16];
-byte buttonStates[16];
-
-
-
-
+#include "MCInput.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEQ stuff
@@ -76,6 +18,7 @@ typedef struct{
 int step = 0;
 uint16_t cycleCount = 0;
 
+MCInput interface;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
@@ -83,15 +26,14 @@ void setup() {
     Serial2.begin(31250);
 
 	Serial.begin(9600);
-    setupInput();
     Timer1.initialize(50000);
     Timer1.attachInterrupt(timed);
     Timer3.initialize(1000);
-    Timer3.attachInterrupt(checkEncoder);
+    Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
-    displayString("YES303");
-    pinMode(beatLEDRed, OUTPUT);
-    digitalWrite(beatLEDRed, HIGH);
+
+    interface.displayString("YES303");
+
     setKit(68);
     setInstrument(11,64,2);
 }
@@ -99,7 +41,7 @@ int ha = 0;
 int cnt = 0;
 
 void loop() {
-    updateInput();
+    interface.update();
     cnt++;
     cnt %= (analogRead(8)/10)+2;
     if(cnt < 2){
@@ -110,6 +52,7 @@ void loop() {
         else ha = random(high-low)+low;
         midiNoteOn(9, ha, 100);
     }
+    Serial.println(interface.potValues[5]);
     // snifMidiIn();
 }
 
@@ -127,6 +70,9 @@ void timed(){
     }
 }
 
+void frequentCheck(){
+    interface.frequentCheck();
+}
 
 void snifMidiIn(){
     if(Serial2.available()){
@@ -158,131 +104,6 @@ void printByte(byte _b){
     Serial.print(_b, BIN);
     Serial.print(" ");
     Serial.println(_b, HEX);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// 7 segs
-///////////////////////////////////////////////////////////////////////////////
-
-void displayString(String _s){
-    byte _segRows[] = {6, 3, 12, 13, 10, 15};
-    char _c;
-    uint8_t _index = 0;
-    for(int i = 0; i < 6; i++){
-        _c = _s.charAt(_index++);
-        if(_c == 46 && i > 0){
-            i--;
-            LEDStates[_segRows[i]] ^= 1 << 7;
-        }
-        else {
-            LEDStates[_segRows[i]] = ~FONT_DEFAULT[_c-32];
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// IO matrix
-///////////////////////////////////////////////////////////////////////////////
-
-void setupInput(){
-	pinMode(dirPin, OUTPUT);
-	for(int i = 0; i < 8; i++){
-		pinMode(columnPins[i], OUTPUT);
-	}
-	for(int i = 0; i < 4; i++){
-		pinMode(rowMuxPins[i], OUTPUT);
-	}
-	pinMode(enc.pinA, INPUT);
-	pinMode(enc.pinB, INPUT);
-	pinMode(tapButton, INPUT);
-	memset(LEDStates, 255, 16);
-	memset(buttonBuffer, 0, 16);
-	memset(buttonStates, 0, 16);
-}
-
-void updateInput(){
-	updateMatrix();
-	bufferPots();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// IO matrix
-///////////////////////////////////////////////////////////////////////////////
-
-// call to update LED states and buffer buttons;
-void updateMatrix(){
-	for(int i = 0; i < 16; i++){
-		setRow(i);
-		columnLEDOutput(i);
-		delayMicroseconds(100);
-		bufferButtons(i);
-		clearColumns();
-	}
-}
-// enable the row 0-15
-void setRow(int _row){
-	for(int i = 0; i < 4; i++){
-		digitalWrite(rowMuxPins[i], bitRead(rowBytes[_row], i));
-	}
-}
-// output the column data according to row
-void columnLEDOutput(int _row){
-	digitalWrite(dirPin, HIGH);
-	for(int i = 0; i < 8; i++){
-		digitalWrite(columnPins[i], bitRead(LEDStates[_row], i));
-	}
-}
-void clearColumns(){
-	for(int i = 0; i < 8; i++){
-		digitalWrite(columnPins[i], HIGH);
-	}
-}
-// read the button matrix
-void bufferButtons(int _row){
-	digitalWrite(dirPin, LOW);
-	for(int i = 0; i < 8; i++){
-		pinMode(columnPins[i], INPUT);
-		bitWrite(buttonBuffer[_row], i, digitalRead(columnPins[i]));
-		pinMode(columnPins[i], OUTPUT);
-	}
-}
-// set an led on or off
-void setLED(uint8_t _row, uint8_t _col, uint8_t _state){
-	bitWrite(LEDStates[_row], _col, _state);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Other input
-///////////////////////////////////////////////////////////////////////////////
-
-// check encoder method, increments or decrements the enc.val
-void checkEncoder(){
-	enc.tmp = digitalRead(enc.pinB);
-	if((enc.tmp == HIGH) && (enc.prev == LOW)){
-		enc.prev = enc.tmp;
-		if(!digitalRead(enc.pinA)){
-			enc.val++;
-		}
-		else {
-			enc.val--;
-		}
-	}
-	enc.prev = enc.tmp;
-}
-void checkTap(){
-
-}
-void bufferPots(){
-	for(int i = 0; i < 8; i++){
-		potStates[i] = analogRead(potPins[i])/8;
-	}
-}
-void printPots(){
-	for(int i = 0; i < 8; i++){
-		Serial.print(potStates[i]);
-		Serial.print(" ");
-	}
-	Serial.println();
 }
 
 

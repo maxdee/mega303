@@ -12,6 +12,8 @@ MCInput::MCInput(){
 	pinMode(enc.pinA, INPUT);
 	pinMode(enc.pinB, INPUT);
 	pinMode(tapButton, INPUT);
+	pinMode(beatLEDRed, OUTPUT);
+	digitalWrite(beatLEDRed, HIGH);
 	memset(LEDStates, 255, 16);
 	memset(buttonBuffer, 0, 16);
 	memset(buttonStates, 0, 16);
@@ -57,7 +59,6 @@ void MCInput::update(){
 						potBuffer[6][i] +
 						potBuffer[7][i]) / 8;
 	}
-
 }
 
 // set an led on or off
