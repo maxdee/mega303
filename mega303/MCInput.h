@@ -4,23 +4,32 @@
 
 #include "Arduino.h"
 #include "Font.h"
-
+// http://forum.arduino.cc/index.php?topic=65095.0
 class MCInput {
 	public:
 		MCInput();
 		void update();
 		void setLED(uint8_t _row, uint8_t _col, uint8_t _state);
+		bool checkButton(uint8_t _row, uint8_t _col);
+
 		void frequentCheck();
 		void displayString(char _str[]);
 		void displayBytes(byte _bytes[]);
 		// states?
+		void setButtonEventCallback(void (*_buttonEventCallback)(int, int, int));
+		void setPotEventCallback(void (*_potEventCallback)(int, int));
+
+	private:
+		void (*buttonEventCallback)(int,int,int);
+		void (*potEventCallback)(int,int);
+
 
 	public: // accesubke members
 		uint8_t potValues[8];
 
 	private:
 		uint16_t updateCount;
-
+		int tmp;
 	// pins and such
 	private:
 		void setRow(int _row);

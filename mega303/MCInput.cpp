@@ -20,6 +20,13 @@ MCInput::MCInput(){
 	updateCount = 0;
 }
 
+void MCInput::setButtonEventCallback(void (*_buttonEventCallback)(int, int, int)){
+	buttonEventCallback = _buttonEventCallback;
+}
+void MCInput::setPotEventCallback(void (*_potEventCallback)(int, int)){
+	potEventCallback = _potEventCallback;
+}
+
 
 void MCInput::update(){
 	updateCount++;
@@ -34,12 +41,18 @@ void MCInput::update(){
 		for(int i = 0; i < 8; i++){
 			digitalWrite(columnPins[i], bitRead(LEDStates[_row], i));
 		}
+		frequentCheck();
 		delayMicroseconds(100);
 		// buffer the buttons
 		digitalWrite(dirPin, LOW);
 		for(int i = 0; i < 8; i++){
 			pinMode(columnPins[i], INPUT);
-			bitWrite(buttonBuffer[_row], i, digitalRead(columnPins[i]));
+			tmp = digitalRead(columnPins[i]);
+			if(tmp != bitRead(buttonBuffer[_row], i)){
+				bitWrite(buttonBuffer[_row], i, tmp);
+				buttonEventCallback(_row, i, tmp);
+			}
+
 			pinMode(columnPins[i], OUTPUT);
 		}
 		// clear the columns
@@ -50,20 +63,28 @@ void MCInput::update(){
 	for(int i = 0; i < 8; i++){
 		// buffer the pots while we are at it
 		potBuffer[updateCount%8][i] = analogRead(potPins[i])/8;
-		potValues[i] = (potBuffer[0][i] +
-						potBuffer[1][i] +
-						potBuffer[2][i] +
-						potBuffer[3][i] +
-						potBuffer[4][i] +
-						potBuffer[5][i] +
-						potBuffer[6][i] +
-						potBuffer[7][i]) / 8;
+		tmp = (potBuffer[0][i] +
+				potBuffer[1][i] +
+				potBuffer[2][i] +
+				potBuffer[3][i] +
+				potBuffer[4][i] +
+				potBuffer[5][i] +
+				potBuffer[6][i] +
+				potBuffer[7][i]) / 8;
+		if(tmp != potValues[i]){
+			potValues[i] = tmp;
+			potEventCallback(i, tmp);
+		}
 	}
 }
 
 // set an led on or off
 void MCInput::setLED(uint8_t _row, uint8_t _col, uint8_t _state){
 	bitWrite(LEDStates[_row], _col, !_state);
+}
+
+bool MCInput::checkButton(uint8_t _row, uint8_t _col){
+	return bitRead(buttonBuffer[_row], _col);
 }
 
 // check encoder method, increments or decrements the enc.val

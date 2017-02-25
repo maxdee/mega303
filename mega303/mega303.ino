@@ -1,8 +1,9 @@
 #include "TimerOne.h"
 #include "TimerThree.h"
 
-#include "patches.h"
+// #include "patches.h"
 #include "MCInput.h"
+#include "MCPart.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEQ stuff
@@ -19,40 +20,43 @@ int step = 0;
 uint16_t cycleCount = 0;
 
 MCInput interface;
-
+MCPart mcPart;
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
     Serial1.begin(31250);
     Serial2.begin(31250);
+    mcPart.begin(&Serial1, 3);
 
 	Serial.begin(9600);
-    Timer1.initialize(50000);
+    Timer1.initialize(10000);
     Timer1.attachInterrupt(timed);
-    Timer3.initialize(1000);
-    Timer3.attachInterrupt(frequentCheck);
+    // Timer3.initialize(1000);
+    // Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
 
     interface.displayString("YES303");
+    interface.setButtonEventCallback(buttonEvent);
+    interface.setPotEventCallback(potEvent);
 
     setKit(68);
-    setInstrument(11,64,2);
+    // setInstrument(3,64,42);
 }
 int ha = 0;
 int cnt = 0;
 
 void loop() {
     interface.update();
-    cnt++;
-    cnt %= (analogRead(8)/10)+2;
-    if(cnt < 2){
-        midiNoteOff(9, ha, 0);
-        int low = analogRead(10)/8;
-        int high = analogRead(9)/8;
-        if(low>high) ha = low;
-        else ha = random(high-low)+low;
-        midiNoteOn(9, ha, 100);
-    }
-    Serial.println(interface.potValues[5]);
+    // cnt++;
+    // cnt %= (analogRead(8)/10)+2;
+    // if(cnt < 2){
+    //     midiNoteOff(9, ha, 0);
+    //     int low = analogRead(10)/8;
+    //     int high = analogRead(9)/8;
+    //     if(low>high) ha = low;
+    //     else ha = random(high-low)+low;
+    //     midiNoteOn(9, ha, 100);
+    // }
+    // Serial.println(interface.checkButton(4,0));
     // snifMidiIn();
 }
 
@@ -65,13 +69,9 @@ void timed(){
         step++;
         step%=16;
         // setKit(abs(enc.val));
-        // midiNoteOff(3,45,100);
-        // midiNoteOn(3,45,100);
+        midiNoteOff(3,45,100);
+        midiNoteOn(3,45,100);
     }
-}
-
-void frequentCheck(){
-    interface.frequentCheck();
 }
 
 void snifMidiIn(){
@@ -87,6 +87,48 @@ void snifMidiIn(){
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// events
+///////////////////////////////////////////////////////////////////////////////
+void buttonEvent(int _row, int _col, int _state){
+    if(_row == 4 || _row == 0){
+        if(!_state){
+            mcPart.noteOn(_col+64,100);
+        }
+        else {
+            mcPart.noteOff(_col+64,100);
+            // midiNoteOff(3,_col+64,100);
+        }
+    }
+    Serial.print(_row);
+    Serial.print("  ");
+    Serial.print(_col);
+    Serial.print("  ");
+    Serial.println(_state);
+}
+
+void potEvent(int _pot, int _val){
+    switch (_pot){
+        case 0:
+            mcPart.fineTune(_val);
+            break;
+        case 1:
+            mcPart.coarseTune(_val);
+        case 2:
+            mcPart.cutoff(_val);
+            break;
+        case 3:
+            mcPart.resonance(_val);
+            break;
+    }
+    Serial.print(_pot);
+    Serial.print("  ");
+    Serial.println(_val);
+}
+///////////////////////////////////////////////////////////////////////////////
+// mc303 api
+///////////////////////////////////////////////////////////////////////////////
 
 void setInstrument(byte _part, byte _i, byte _j){
     midiControlChange(_part, 00, _i); // CC00 64-73
