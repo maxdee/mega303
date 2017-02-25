@@ -25,7 +25,7 @@ void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
     Serial1.begin(31250);
     Serial2.begin(31250);
-    mcPart.begin(&Serial1, 3);
+    mcPart.begin(&Serial1, 1);
 
 	Serial.begin(9600);
     Timer1.initialize(10000);
@@ -34,12 +34,12 @@ void setup() {
     // Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
 
-    interface.displayString("YES303");
+    interface.displayString("YES3.0.3");
+
     interface.setButtonEventCallback(buttonEvent);
     interface.setPotEventCallback(potEvent);
 
-    setKit(68);
-    // setInstrument(3,64,42);
+    // setKit(68);
 }
 int ha = 0;
 int cnt = 0;
@@ -64,29 +64,29 @@ void timed(){
     cycleCount++;
     // setLED(step,cycleCount%8, HIGH);
     // setLED(step,(cycleCount+1)%8,LOW);
-
-    if(cycleCount % 18 == 0 ){
-        step++;
-        step%=16;
-        // setKit(abs(enc.val));
-        midiNoteOff(3,45,100);
-        midiNoteOn(3,45,100);
-    }
+    //
+    // if(cycleCount % 18 == 0 ){
+    //     step++;
+    //     step%=16;
+    //     // setKit(abs(enc.val));
+    //     midiNoteOff(3,45,100);
+    //     midiNoteOn(3,45,100);
+    // }
 }
 
-void snifMidiIn(){
-    if(Serial2.available()){
-        Serial.println("|||||||||||");
-        byte _b = 0;
-        while(Serial2.available()){
-            _b = Serial2.read();
-            midiByte(_b);
-            Serial.print(_b, HEX);
-            Serial.print("  ");
-            Serial.println(_b, BIN);
-        }
-    }
-}
+// void snifMidiIn(){
+//     if(Serial2.available()){
+//         Serial.println("|||||||||||");
+//         byte _b = 0;
+//         while(Serial2.available()){
+//             _b = Serial2.read();
+//             midiByte(_b);
+//             Serial.print(_b, HEX);
+//             Serial.print("  ");
+//             Serial.println(_b, BIN);
+//         }
+//     }
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 // events
@@ -98,14 +98,13 @@ void buttonEvent(int _row, int _col, int _state){
         }
         else {
             mcPart.noteOff(_col+64,100);
-            // midiNoteOff(3,_col+64,100);
         }
     }
-    Serial.print(_row);
-    Serial.print("  ");
-    Serial.print(_col);
-    Serial.print("  ");
-    Serial.println(_state);
+    // Serial.print(_row);
+    // Serial.print("  ");
+    // Serial.print(_col);
+    // Serial.print("  ");
+    // Serial.println(_state);
 }
 
 void potEvent(int _pot, int _val){
@@ -121,10 +120,19 @@ void potEvent(int _pot, int _val){
         case 3:
             mcPart.resonance(_val);
             break;
+        case 4:
+            mcPart.setPatch(64, _val);
+            break;
+        case 5:
+            mcPart.portamentoTime(_val);
+            break;
     }
-    Serial.print(_pot);
-    Serial.print("  ");
-    Serial.println(_val);
+    char _buf[12];
+    sprintf(_buf, "%03d%03d", _pot, _val);
+    interface.displayString(_buf);
+    // Serial.println(_buf);
+    // // Serial.print("  ");
+    // // Serial.println(_val);
 }
 ///////////////////////////////////////////////////////////////////////////////
 // mc303 api

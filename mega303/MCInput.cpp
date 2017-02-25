@@ -23,10 +23,10 @@ MCInput::MCInput(){
 void MCInput::setButtonEventCallback(void (*_buttonEventCallback)(int, int, int)){
 	buttonEventCallback = _buttonEventCallback;
 }
+
 void MCInput::setPotEventCallback(void (*_potEventCallback)(int, int)){
 	potEventCallback = _potEventCallback;
 }
-
 
 void MCInput::update(){
 	updateCount++;
@@ -60,6 +60,7 @@ void MCInput::update(){
 			digitalWrite(columnPins[i], HIGH);
 		}
 	}
+	// buffer the pots while we are at it
 	for(int i = 0; i < 8; i++){
 		// buffer the pots while we are at it
 		potBuffer[updateCount%8][i] = analogRead(potPins[i])/8;
@@ -71,7 +72,8 @@ void MCInput::update(){
 				potBuffer[5][i] +
 				potBuffer[6][i] +
 				potBuffer[7][i]) / 8;
-		if(tmp != potValues[i]){
+		if(tmp != potValues[i] && tmp != previousPotVal[i]){
+			previousPotVal[i] = potValues[i];
 			potValues[i] = tmp;
 			potEventCallback(i, tmp);
 		}

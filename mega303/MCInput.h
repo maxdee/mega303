@@ -51,6 +51,7 @@ class MCInput {
 
 		uint8_t potPins[8] = {8, 9, 10, 11, 12, 13, 14, 15};
 		uint8_t potBuffer[8][8];
+		uint8_t previousPotVal[8];
 		// pins for columns
 		uint8_t columnPins[8] = {25, 27, 29, 31, 33, 35, 37, 39};
 		// Pins for row multiplexer

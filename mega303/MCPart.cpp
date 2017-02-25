@@ -27,8 +27,19 @@ void MCPart::controlChange(uint8_t _cc, uint8_t _val){
 	serial -> write(_val);
 }
 
-void MCPart::setPatch(uint8_t _patch){
+void MCPart::programChange(uint8_t _val){
+	serial -> write(0xC0 | channel);
+	serial -> write(_val);
+}
 
+void MCPart::setPatch(uint8_t _bank, uint8_t _pc){
+	controlChange(00, _bank);
+	controlChange(32, 00);
+	programChange(_pc);
+}
+
+void MCPart::setKit(uint8_t _pc){
+	programChange(_pc);
 }
 
 void MCPart::coarseTune(uint8_t _val){
@@ -53,4 +64,16 @@ void MCPart::resonance(uint8_t _val){
 	controlChange(99, 1);
 	controlChange(98, 33);
 	controlChange(6, _val);
+}
+
+void MCPart::portamentoTime(uint8_t _val){
+	if(_val == 0){
+		controlChange(126, 00); // mono off
+		controlChange(65, 00); // portamento off
+	}
+	else {
+		controlChange(126, 01); // mono on
+		controlChange(65, 127); // portamento on
+	}
+	controlChange(5, _val);
 }
