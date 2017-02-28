@@ -20,7 +20,7 @@ MCInput::MCInput(){
 	updateCount = 0;
 }
 
-void MCInput::setButtonEventCallback(void (*_buttonEventCallback)(int, int, int)){
+void MCInput::setButtonEventCallback(void (*_buttonEventCallback)(int, int)){
 	buttonEventCallback = _buttonEventCallback;
 }
 
@@ -50,9 +50,8 @@ void MCInput::update(){
 			tmp = digitalRead(columnPins[i]);
 			if(tmp != bitRead(buttonBuffer[_row], i)){
 				bitWrite(buttonBuffer[_row], i, tmp);
-				buttonEventCallback(_row, i, tmp);
+				buttonEventCallback(columnRowToIndex(_row, i), tmp);
 			}
-
 			pinMode(columnPins[i], OUTPUT);
 		}
 		// clear the columns
@@ -80,9 +79,13 @@ void MCInput::update(){
 	}
 }
 
+int MCInput::columnRowToIndex(uint8_t _row, uint8_t _col){
+    return (_row * COL_COUNT)+_col;
+}
+
 // set an led on or off
-void MCInput::setLED(uint8_t _row, uint8_t _col, uint8_t _state){
-	bitWrite(LEDStates[_row], _col, !_state);
+void MCInput::setLED(uint8_t _index, uint8_t _state){
+	bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
 }
 
 bool MCInput::checkButton(uint8_t _row, uint8_t _col){

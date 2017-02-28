@@ -4,6 +4,7 @@
 // #include "patches.h"
 #include "MCInput.h"
 #include "MCPart.h"
+#include "MCConstants.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEQ stuff
@@ -21,57 +22,49 @@ uint16_t cycleCount = 0;
 
 MCInput interface;
 MCPart mcPart;
+
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
     Serial1.begin(31250);
     Serial2.begin(31250);
     mcPart.begin(&Serial1, 1);
+    mcPart.setPatch(64,22);
 
 	Serial.begin(9600);
-    Timer1.initialize(10000);
+    Timer1.initialize(500000);
     Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
     // Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
-
+    // const FlashString F("YES3.0.3")
     interface.displayString("YES3.0.3");
 
     interface.setButtonEventCallback(buttonEvent);
     interface.setPotEventCallback(potEvent);
 
-    // setKit(68);
+    mcPart.setPatch(64,22);
+    mcPart.releaseTime(110);
+    mcPart.portamentoTime(0);
+
 }
+
 int ha = 0;
 int cnt = 0;
+int currentNote = 0;
+int rate = 0;
+int low = 0;
+int high = 0;
 
 void loop() {
     interface.update();
-    // cnt++;
-    // cnt %= (analogRead(8)/10)+2;
-    // if(cnt < 2){
-    //     midiNoteOff(9, ha, 0);
-    //     int low = analogRead(10)/8;
-    //     int high = analogRead(9)/8;
-    //     if(low>high) ha = low;
-    //     else ha = random(high-low)+low;
-    //     midiNoteOn(9, ha, 100);
-    // }
+
     // Serial.println(interface.checkButton(4,0));
     // snifMidiIn();
 }
 
 void timed(){
     cycleCount++;
-    // setLED(step,cycleCount%8, HIGH);
-    // setLED(step,(cycleCount+1)%8,LOW);
-    //
-    // if(cycleCount % 18 == 0 ){
-    //     step++;
-    //     step%=16;
-    //     // setKit(abs(enc.val));
-    //     midiNoteOff(3,45,100);
-    //     midiNoteOn(3,45,100);
-    // }
+    cycleCount %= rate;
 }
 
 // void snifMidiIn(){
@@ -91,40 +84,62 @@ void timed(){
 ///////////////////////////////////////////////////////////////////////////////
 // events
 ///////////////////////////////////////////////////////////////////////////////
-void buttonEvent(int _row, int _col, int _state){
-    if(_row == 4 || _row == 0){
-        if(!_state){
-            mcPart.noteOn(_col+64,100);
-        }
-        else {
-            mcPart.noteOff(_col+64,100);
-        }
+
+void buttonEvent(int _index, int _state){
+    if(_state){
+        interface.setLED(cnt, false);
+        if(_index == SELECT_LEFT_BUTTON) cnt--;
+        else if(_index == SELECT_RIGHT_BUTTON) cnt++;
+        interface.setLED(cnt, true);
     }
-    // Serial.print(_row);
+
+    char _buf[12];
+    sprintf(_buf, "%03d", cnt);
+    interface.displayString(_buf);
+    // uint8_t note = (_col*3)+32;
+    // if(_row == 4 || _row == 0){
+    //     uint8_t note = (_col*3)+32;
+    //     if(_row == 0) note = ((_col+8)*3)+32;
+    //     if(!_state){
+    //         mcPart.noteOn(note,100);
+    //     }
+    //     else {
+    //         mcPart.noteOff(note,100);
+    //     }
+    // }
+    // bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
+    Serial.println(_index);
+    if(_index == SHIFT_BUTTON) Serial.println(F("ahahah"));
     // Serial.print("  ");
     // Serial.print(_col);
     // Serial.print("  ");
     // Serial.println(_state);
 }
 
+
+
 void potEvent(int _pot, int _val){
     switch (_pot){
         case 0:
-            mcPart.fineTune(_val);
+            mcPart.releaseTime(_val);
             break;
         case 1:
-            mcPart.coarseTune(_val);
+            mcPart.resonance(_val);
+            break;
         case 2:
             mcPart.cutoff(_val);
             break;
         case 3:
-            mcPart.resonance(_val);
+            mcPart.cutoffFreq(_val);
             break;
         case 4:
-            mcPart.setPatch(64, _val);
+            mcPart.vibratoRate(_val);
             break;
         case 5:
-            mcPart.portamentoTime(_val);
+            mcPart.vibratoDepth(_val);
+            break;
+        case 6:
+            mcPart.vibratoDelay(_val);
             break;
     }
     char _buf[12];
@@ -134,21 +149,10 @@ void potEvent(int _pot, int _val){
     // // Serial.print("  ");
     // // Serial.println(_val);
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 // mc303 api
 ///////////////////////////////////////////////////////////////////////////////
-
-void setInstrument(byte _part, byte _i, byte _j){
-    midiControlChange(_part, 00, _i); // CC00 64-73
-    midiControlChange(_part, 32, 00); // derp
-    midiByte(0xC0 | _part);
-    midiByte(_j);
-    // myBus.sendMessage( new ShortMessage(ShortMessage.PROGRAM_CHANGE, _part, _j, 0) ); // PG
-}
-void setKit(uint8_t _kit){
-    midiByte(0xC0 | 9);
-    midiByte(_kit);
-}
 
 void printByte(byte _b){
     Serial.print(_b, BIN);
@@ -231,25 +235,7 @@ void midiNRPN(byte channel, byte msb, byte lsb, byte value) {
     // delay(50);
 }
 
-//  Sends a MIDI control change
-void midiPatchSelect(byte bank, byte patch) {
-//  Serial.write(cmd);
-//  Serial.write(pitch);
-//  Serial.write(velocity);
-    // Write bank in CC00 and CC32
-    midiByte(0xB3);
-    midiByte(byte(0));
-    midiByte(bank);
-    // delay(5);
-    midiByte(0xB3);
-    midiByte(32);
-    midiByte(byte(0));
-    // delay(5);
-    // Write PC
-    midiByte(0xC3);
-    midiByte(patch);
-    // delay(40);
-}
+
 
 
 // Send sysex data

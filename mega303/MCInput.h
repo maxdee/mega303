@@ -4,23 +4,25 @@
 
 #include "Arduino.h"
 #include "Font.h"
+#include "MCConstants.h"
+// #include "MC"
 // http://forum.arduino.cc/index.php?topic=65095.0
 class MCInput {
 	public:
 		MCInput();
 		void update();
-		void setLED(uint8_t _row, uint8_t _col, uint8_t _state);
+		void setLED(uint8_t _index, uint8_t _state);
 		bool checkButton(uint8_t _row, uint8_t _col);
 
 		void frequentCheck();
 		void displayString(char _str[]);
 		void displayBytes(byte _bytes[]);
 		// states?
-		void setButtonEventCallback(void (*_buttonEventCallback)(int, int, int));
+		void setButtonEventCallback(void (*_buttonEventCallback)(int, int));
 		void setPotEventCallback(void (*_potEventCallback)(int, int));
 
 	private:
-		void (*buttonEventCallback)(int,int,int);
+		void (*buttonEventCallback)(int,int);
 		void (*potEventCallback)(int,int);
 
 
@@ -32,6 +34,7 @@ class MCInput {
 		int tmp;
 	// pins and such
 	private:
+		int columnRowToIndex(uint8_t _row, uint8_t _col);
 		void setRow(int _row);
 		typedef struct {
 		    uint8_t pinA;
@@ -48,6 +51,10 @@ class MCInput {
 		#define beatLEDGreen 15
 		#define xrst 20
 		#define footSwitch 21
+
+		#define ROW_COUNT 16
+		#define COL_COUNT 8
+
 
 		uint8_t potPins[8] = {8, 9, 10, 11, 12, 13, 14, 15};
 		uint8_t potBuffer[8][8];

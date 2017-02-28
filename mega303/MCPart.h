@@ -17,7 +17,6 @@ class MCPart {
 		void controlChange(uint8_t _cc, uint8_t _val);
 		void programChange(uint8_t _val);
 
-
 		void setPatch(uint8_t _bank, uint8_t _pc);
 		void setKit(uint8_t _pc);
 
@@ -27,6 +26,22 @@ class MCPart {
 		void resonance(uint8_t _val);
 		void portamentoTime(uint8_t _val);
 
+		void vibratoRate(uint8_t _val);
+		void vibratoDepth(uint8_t _val);
+		void vibratoDelay(uint8_t _val);
+
+		void cutoffFreq(uint8_t _val);
+		void tvfResonance(uint8_t _val);
+
+		void attackTime(uint8_t _val);
+		void decayTime(uint8_t _val);
+		void releaseTime(uint8_t _val);
+
+		void drumPitch(uint8_t _note, uint8_t _val);
+		void drumTVA(uint8_t _note, uint8_t _val);
+		void drumPan(uint8_t _note, uint8_t _val);
+		void drumReverb(uint8_t _note, uint8_t _val);
+		void drumChorus(uint8_t _note, uint8_t _val);
 
 
 	private:
