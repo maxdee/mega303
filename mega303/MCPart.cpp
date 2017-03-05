@@ -86,6 +86,26 @@ void MCPart::portamentoTime(uint8_t _val){
 	controlChange(5, _val);
 }
 
+void MCPart::pan(uint8_t _val){
+	controlChange(10, _val);
+}
+
+void MCPart::volume(uint8_t _val){
+	controlChange(7, _val);
+}
+
+void MCPart::modulation(uint8_t _val){
+	controlChange(1, _val);
+}
+
+void MCPart::expression(uint8_t _val){
+	controlChange(11, _val);
+}
+
+void MCPart::sustain(uint8_t _val){
+	controlChange(64, _val);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // NRPN - patch editing
 ///////////////////////////////////////////////////////////////////////////////

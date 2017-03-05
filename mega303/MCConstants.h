@@ -34,11 +34,18 @@
 #define ENTER_BUTTON 21
 #define EXIT_BUTTON 22
 
+#define ENCODER_BUTTON 128
+#define TAP_BUTTON 129
 
 const int PART_BUTTON[] = {64, 65, 66, 67, 68, 69, 70, 71};
 
 const int STEP_BUTTON[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
-
+const int STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 1, 2, 3, 4, 5, 6, 7, 8
+						 	};
 const int STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
 
 #define SONG_LED 40

@@ -43,6 +43,15 @@ class MCPart {
 		void drumReverb(uint8_t _note, uint8_t _val);
 		void drumChorus(uint8_t _note, uint8_t _val);
 
+		void pan(uint8_t _val);
+		void volume(uint8_t _val);
+		void modulation(uint8_t _val);
+		void expression(uint8_t _val);
+		void sustain(uint8_t _val);
+
+
+
+
 
 	private:
 };

@@ -9,8 +9,8 @@ MCInput::MCInput(){
 	for(int i = 0; i < 4; i++){
 		pinMode(rowMuxPins[i], OUTPUT);
 	}
-	pinMode(enc.pinA, INPUT);
-	pinMode(enc.pinB, INPUT);
+	pinMode(encoder.pinA, INPUT);
+	pinMode(encoder.pinB, INPUT);
 	pinMode(tapButton, INPUT);
 	pinMode(beatLEDRed, OUTPUT);
 	digitalWrite(beatLEDRed, HIGH);
@@ -58,6 +58,10 @@ void MCInput::update(){
 		for(int i = 0; i < 8; i++){
 			digitalWrite(columnPins[i], HIGH);
 		}
+		if(encoder.val != 0){
+			buttonEventCallback(ENCODER_BUTTON, encoder.val);
+			encoder.val = 0;
+		}
 	}
 	// buffer the pots while we are at it
 	for(int i = 0; i < 8; i++){
@@ -92,22 +96,22 @@ bool MCInput::checkButton(uint8_t _row, uint8_t _col){
 	return bitRead(buttonBuffer[_row], _col);
 }
 
-// check encoder method, increments or decrements the enc.val
+// check encoder method, increments or decrements the encoder.val
 void MCInput::frequentCheck(){
 	// check the tap tempo?
 
 	// check the encoder
-	enc.tmp = digitalRead(enc.pinB);
-	if((enc.tmp == HIGH) && (enc.prev == LOW)){
-		enc.prev = enc.tmp;
-		if(!digitalRead(enc.pinA)){
-			enc.val++;
+	encoder.tmp = digitalRead(encoder.pinB);
+	if((encoder.tmp == HIGH) && (encoder.prev == LOW)){
+		encoder.prev = encoder.tmp;
+		if(!digitalRead(encoder.pinA)){
+			encoder.val++;
 		}
 		else {
-			enc.val--;
+			encoder.val--;
 		}
 	}
-	enc.prev = enc.tmp;
+	encoder.prev = encoder.tmp;
 }
 
 void MCInput::displayString(char _str[]){

@@ -46,7 +46,7 @@ class MCInput {
 		// Pins
 		#define dirPin 23
 		#define tapButton 45
-		Encoder enc = {41, 43};
+		Encoder encoder = {41, 43};
 		#define beatLEDRed 14
 		#define beatLEDGreen 15
 		#define xrst 20
