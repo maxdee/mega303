@@ -128,18 +128,6 @@ void MCPart::vibratoDelay(uint8_t _val){
 	controlChange(06, _val);
 }
 
-void MCPart::cutoffFreq(uint8_t _val){
-	controlChange(99, 1);
-	controlChange(98, 32);
-	controlChange(06, _val);
-}
-
-void MCPart::tvfResonance(uint8_t _val){
-	controlChange(99, 1);
-	controlChange(98, 33);
-	controlChange(06, _val);
-}
-
 void MCPart::attackTime(uint8_t _val){
 	controlChange(99, 1);
 	controlChange(98, 99);

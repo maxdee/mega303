@@ -20,12 +20,8 @@ MCInput::MCInput(){
 	updateCount = 0;
 }
 
-void MCInput::setButtonEventCallback(void (*_buttonEventCallback)(int, int)){
-	buttonEventCallback = _buttonEventCallback;
-}
-
-void MCInput::setPotEventCallback(void (*_potEventCallback)(int, int)){
-	potEventCallback = _potEventCallback;
+void MCInput::setEventCallback(void (*_eventCallback)(int, int)){
+	eventCallback = _eventCallback;
 }
 
 void MCInput::update(){
@@ -50,7 +46,12 @@ void MCInput::update(){
 			tmp = digitalRead(columnPins[i]);
 			if(tmp != bitRead(buttonBuffer[_row], i)){
 				bitWrite(buttonBuffer[_row], i, tmp);
-				buttonEventCallback(columnRowToIndex(_row, i), tmp);
+				if(_row == 4 || _row == 0){
+					eventCallback(STEP_LOOKUP[columnRowToIndex(_row, i)]+127, tmp);
+				}
+				else {
+					eventCallback(columnRowToIndex(_row, i), tmp);
+				}
 			}
 			pinMode(columnPins[i], OUTPUT);
 		}
@@ -59,7 +60,7 @@ void MCInput::update(){
 			digitalWrite(columnPins[i], HIGH);
 		}
 		if(encoder.val != 0){
-			buttonEventCallback(ENCODER_BUTTON, encoder.val);
+			eventCallback(ENCODER_BUTTON, encoder.val);
 			encoder.val = 0;
 		}
 	}
@@ -78,7 +79,7 @@ void MCInput::update(){
 		if(tmp != potValues[i] && tmp != previousPotVal[i]){
 			previousPotVal[i] = potValues[i];
 			potValues[i] = tmp;
-			potEventCallback(i, tmp);
+			eventCallback(POTENTIOMETER[i], tmp);
 		}
 	}
 }

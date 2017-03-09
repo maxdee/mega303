@@ -5,6 +5,7 @@
 #include "MCInput.h"
 #include "MCPart.h"
 #include "MCConstants.h"
+#include "MCMode.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEQ stuff
@@ -20,15 +21,18 @@ typedef struct{
 int step = 0;
 uint16_t cycleCount = 0;
 
-MCInput interface;
-MCPart mcPart;
+MCInput input ;
+MCPart mcParts[PART_COUNT];
+#define MODE_COUNT 2
+MCMode mode[MODE_COUNT] = {MCMode(), ModeTwo()};
+int modeIndex;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
     Serial1.begin(31250);
     Serial2.begin(31250);
-    mcPart.begin(&Serial1, 1);
-    mcPart.setPatch(64,22);
+    // mcPart.begin(&Serial1, 1);
+    // mcPart.setPatch(64,22);
 
 	Serial.begin(9600);
     Timer1.initialize(500000);
@@ -37,15 +41,25 @@ void setup() {
     // Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
     // const FlashString F("YES3.0.3")
-    interface.displayString("YES3.0.3");
+    input.displayString("YES3.0.3");
 
-    interface.setButtonEventCallback(buttonEvent);
-    interface.setPotEventCallback(potEvent);
+    input.setEventCallback(event);
 
-    mcPart.setPatch(64,22);
-    mcPart.releaseTime(110);
-    mcPart.portamentoTime(0);
+    // mcPart.setPatch(64,22);
+    // mcPart.releaseTime(110);
+    // mcPart.portamentoTime(0);
+    for(int i = 0; i < PART_COUNT; i++){
+        setupPart(i);
+    }
+    for(int i = 0; i < MODE_COUNT; i++){
+        mode[i].setInput(&input);
+        mode[i].setParts(mcParts);
+    }
 
+}
+
+void setupPart(uint8_t _i){
+    mcParts[_i].begin(&Serial1, _i == 0 ? 9 : _i);
 }
 
 int ha = 0;
@@ -56,9 +70,9 @@ int low = 0;
 int high = 0;
 
 void loop() {
-    interface.update();
+    input.update();
 
-    // Serial.println(interface.checkButton(4,0));
+    // Serial.println(input.checkButton(4,0));
     // snifMidiIn();
 }
 
@@ -85,31 +99,45 @@ void timed(){
 // events
 ///////////////////////////////////////////////////////////////////////////////
 
-void buttonEvent(int _index, int _state){
-    interface.setLED(cnt, false);
-    if(_index == ENCODER_BUTTON){
-        cnt += _state;
+void setMode(int _mode){
+    modeIndex %= MODE_COUNT+1;
+    if(modeIndex < 0) modeIndex = 0;
+    char _buf[12];
+    sprintf(_buf, "MoD%03d", modeIndex);
+    input.displayString(_buf);
+}
+
+void event(int _index, int _state){
+    mode[modeIndex].event(_index, _state);
+    if(_state == 0){
+        if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex++);
+        else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex--);
     }
-    if(_index < 40 && millis() > 3000){
-        if(STEP_LOOKUP[_index] != 0){
-            if(!_state){
-                mcPart.noteOn(STEP_LOOKUP[_index]+36, 100);
-            }
-            else mcPart.noteOff(STEP_LOOKUP[_index]+36, 100);
-        }
-    }
+
+    // input.setLED(cnt, false);
+    // if(_index == ENCODER_BUTTON){
+    //     cnt += _state;
+    // }
+    // if(_index < 40 && millis() > 3000){
+    //     if(STEP_LOOKUP[_index] != 0){
+    //         if(!_state){
+    //             mcPart.noteOn(STEP_LOOKUP[_index]*3+27, 100);
+    //         }
+    //         else mcPart.noteOff(STEP_LOOKUP[_index]*3+27, 100);
+    //     }
+    // }
     // if(_index == FUNC_BUTTON){
-    //     interface.setLED(FUNC_LED, !_state);
+    //     input.setLED(FUNC_LED, !_state);
     // }
     // if(_state){
     //     if(_index == SELECT_LEFT_BUTTON) cnt--;
     //     else if(_index == SELECT_RIGHT_BUTTON) cnt++;
-        interface.setLED(cnt, true);
+        // input.setLED(cnt, true);
     // }
 
-    char _buf[12];
-    sprintf(_buf, "%03d", cnt);
-    interface.displayString(_buf);
+    // char _buf[12];
+    // sprintf(_buf, "%03d", cnt);
+    // input.displayString(_buf);
     // uint8_t note = (_col*3)+32;
     // if(_row == 4 || _row == 0){
     //     uint8_t note = (_col*3)+32;
@@ -122,8 +150,8 @@ void buttonEvent(int _index, int _state){
     //     }
     // }
     // bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
-    Serial.println(_index);
-    if(_index == SHIFT_BUTTON) Serial.println(F("ahahah"));
+    // Serial.println(_index);
+    // if(_index == SHIFT_BUTTON) Serial.println(F("ahahah"));
     // Serial.print("  ");
     // Serial.print(_col);
     // Serial.print("  ");
@@ -131,38 +159,9 @@ void buttonEvent(int _index, int _state){
 }
 
 
-
-void potEvent(int _pot, int _val){
-    switch (_pot){
-        case 0:
-            mcPart.releaseTime(_val);
-            break;
-        case 1:
-            mcPart.resonance(_val);
-            break;
-        case 2:
-            mcPart.cutoff(_val);
-            break;
-        case 3:
-            mcPart.cutoffFreq(_val);
-            break;
-        case 4:
-            mcPart.vibratoRate(_val);
-            break;
-        case 5:
-            mcPart.vibratoDepth(_val);
-            break;
-        case 6:
-            mcPart.sustain(_val);
-            break;
-    }
-    char _buf[12];
-    sprintf(_buf, "%03d%03d", _pot, _val);
-    interface.displayString(_buf);
-    // Serial.println(_buf);
-    // // Serial.print("  ");
-    // // Serial.println(_val);
-}
+// char _buf[12];
+// sprintf(_buf, "%03d%03d", _pot, _val);
+// input.displayString(_buf);
 
 ///////////////////////////////////////////////////////////////////////////////
 // mc303 api

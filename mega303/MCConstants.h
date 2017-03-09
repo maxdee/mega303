@@ -1,6 +1,41 @@
 #ifndef MCConstants_h
 #define MCConstants_h
 
+#define PART_COUNT 8
+
+////////////////////////////////////////////////////
+// Parameters or whatever
+
+#define PART_NOTE_OFF 			0
+#define PART_NOTE_ON 			1
+#define PART_CONTROL_CHANGE		2
+#define PART_PROGRAM_CHANGE 	3
+#define PART_PATCH 				4
+#define PART_KIT 				5
+#define PART_COARSE_TUNE 		6
+#define PART_FINE_TUNE 			7
+#define PART_CUTOFF 			8
+#define PART_RESONANCE 			9
+#define PART_PORTAMENTO_TIME 	10
+#define PART_VIBRATO_RATE		11
+#define PART_VIBRATO_DEPTH		12
+#define PART_VIBRATO_DELAY		13
+#define PART_ATTACK				14
+#define PART_DECAY				15
+#define PART_RELEASE			16
+#define PART_DRUM_PITCH			17
+#define PART_DRUM_TVA			18
+#define PART_DRUM_PAN			19
+#define PART_DRUM_REVERB		20
+#define PART_DRUM_CHORUS		21
+#define PART_PAN				22
+#define PART_VOLUME				23
+#define PART_MODULATION			24
+#define PART_EXPRESSION			25
+#define PART_SUSTAIN			26
+
+////////////////////////////////////////////////////
+
 #define SCALE_BUTTON 113
 #define FUNC_BUTTON 114
 #define SHIFT_BUTTON 115
@@ -46,6 +81,8 @@ const int STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
 							 0, 0, 0, 0, 0, 0, 0, 0,
 							 1, 2, 3, 4, 5, 6, 7, 8
 						 	};
+const int POTENTIOMETER[] = {127,128,129,130,131,132,133};
+
 const int STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
 
 #define SONG_LED 40

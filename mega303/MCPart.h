@@ -30,9 +30,6 @@ class MCPart {
 		void vibratoDepth(uint8_t _val);
 		void vibratoDelay(uint8_t _val);
 
-		void cutoffFreq(uint8_t _val);
-		void tvfResonance(uint8_t _val);
-
 		void attackTime(uint8_t _val);
 		void decayTime(uint8_t _val);
 		void releaseTime(uint8_t _val);

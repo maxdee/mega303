@@ -18,12 +18,10 @@ class MCInput {
 		void displayString(char _str[]);
 		void displayBytes(byte _bytes[]);
 		// states?
-		void setButtonEventCallback(void (*_buttonEventCallback)(int, int));
-		void setPotEventCallback(void (*_potEventCallback)(int, int));
+		void setEventCallback(void (*_eventCallback)(int, int));
 
 	private:
-		void (*buttonEventCallback)(int,int);
-		void (*potEventCallback)(int,int);
+		void (*eventCallback)(int,int);
 
 
 	public: // accesubke members
