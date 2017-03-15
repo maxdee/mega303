@@ -87,9 +87,12 @@ class MCInput {
 		// next circuit version will use port manipulation...
 
 		// LED column states
-		byte LEDStates[16];
 		byte buttonBuffer[16];
 		byte buttonStates[16];
+
+	public:
+		byte LEDStates[16];
+
 };
 
 #endif

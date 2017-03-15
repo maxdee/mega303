@@ -23,8 +23,14 @@ uint16_t cycleCount = 0;
 
 MCInput input ;
 MCPart mcParts[PART_COUNT];
-#define MODE_COUNT 2
-MCMode mode[MODE_COUNT] = {MCMode(), ModeTwo()};
+
+#define MODE_COUNT 3
+MCMode * mode[MODE_COUNT];// = {ModeTwo(), ModeTwo(),ModeTwo()};
+ModeOne modeOne;
+ModeTwo modeTwo;
+ModeThree modeThree;
+
+
 int modeIndex;
 
 void setup() {
@@ -35,7 +41,7 @@ void setup() {
     // mcPart.setPatch(64,22);
 
 	Serial.begin(9600);
-    Timer1.initialize(500000);
+    Timer1.initialize(5000);
     Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
     // Timer3.attachInterrupt(frequentCheck);
@@ -51,9 +57,15 @@ void setup() {
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
+    mode[0] = &modeOne;
+    mode[1] = &modeTwo;
+    mode[2] = &modeThree;
+
     for(int i = 0; i < MODE_COUNT; i++){
-        mode[i].setInput(&input);
-        mode[i].setParts(mcParts);
+        mode[i]->begin(&Serial);
+
+        mode[i]->setInput(&input);
+        mode[i]->setParts(mcParts);
     }
 
 }
@@ -71,7 +83,6 @@ int high = 0;
 
 void loop() {
     input.update();
-
     // Serial.println(input.checkButton(4,0));
     // snifMidiIn();
 }
@@ -79,83 +90,34 @@ void loop() {
 void timed(){
     cycleCount++;
     cycleCount %= rate;
+    for(int i = 0; i < MODE_COUNT; i++){
+        mode[i]->update();
+    }
 }
 
-// void snifMidiIn(){
-//     if(Serial2.available()){
-//         Serial.println("|||||||||||");
-//         byte _b = 0;
-//         while(Serial2.available()){
-//             _b = Serial2.read();
-//             midiByte(_b);
-//             Serial.print(_b, HEX);
-//             Serial.print("  ");
-//             Serial.println(_b, BIN);
-//         }
-//     }
-// }
 
 ///////////////////////////////////////////////////////////////////////////////
 // events
 ///////////////////////////////////////////////////////////////////////////////
 
 void setMode(int _mode){
-    modeIndex %= MODE_COUNT+1;
+    mode[modeIndex]->unSelectMode();
+    modeIndex = _mode;
+    modeIndex %= MODE_COUNT;
     if(modeIndex < 0) modeIndex = 0;
+    mode[modeIndex]->selectMode();
     char _buf[12];
     sprintf(_buf, "MoD%03d", modeIndex);
     input.displayString(_buf);
 }
 
 void event(int _index, int _state){
-    mode[modeIndex].event(_index, _state);
-    if(_state == 0){
-        if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex++);
-        else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex--);
+    mode[modeIndex]->event(_index, _state);
+    if(_state == 1){
+        if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);
+        else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex+1);
     }
 
-    // input.setLED(cnt, false);
-    // if(_index == ENCODER_BUTTON){
-    //     cnt += _state;
-    // }
-    // if(_index < 40 && millis() > 3000){
-    //     if(STEP_LOOKUP[_index] != 0){
-    //         if(!_state){
-    //             mcPart.noteOn(STEP_LOOKUP[_index]*3+27, 100);
-    //         }
-    //         else mcPart.noteOff(STEP_LOOKUP[_index]*3+27, 100);
-    //     }
-    // }
-    // if(_index == FUNC_BUTTON){
-    //     input.setLED(FUNC_LED, !_state);
-    // }
-    // if(_state){
-    //     if(_index == SELECT_LEFT_BUTTON) cnt--;
-    //     else if(_index == SELECT_RIGHT_BUTTON) cnt++;
-        // input.setLED(cnt, true);
-    // }
-
-    // char _buf[12];
-    // sprintf(_buf, "%03d", cnt);
-    // input.displayString(_buf);
-    // uint8_t note = (_col*3)+32;
-    // if(_row == 4 || _row == 0){
-    //     uint8_t note = (_col*3)+32;
-    //     if(_row == 0) note = ((_col+8)*3)+32;
-    //     if(!_state){
-    //         mcPart.noteOn(note,100);
-    //     }
-    //     else {
-    //         mcPart.noteOff(note,100);
-    //     }
-    // }
-    // bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
-    // Serial.println(_index);
-    // if(_index == SHIFT_BUTTON) Serial.println(F("ahahah"));
-    // Serial.print("  ");
-    // Serial.print(_col);
-    // Serial.print("  ");
-    // Serial.println(_state);
 }
 
 
@@ -189,79 +151,6 @@ void soundModuleMode(){
 void midiByte(byte _b){
     Serial1.write(_b);
 }
-//
-// //  plays a MIDI note.  Doesn't check to see that
-// //  cmd is greater than 127, or that data values are  less than 127:
-// void midiNoteOn(byte _chanel, byte _pitch, byte _vel) {
-// //  Serial.write(cmd);
-// //  Serial.write(_pitch);
-// //  Serial.write(_vel);
-//     midiByte(0x90 | _chanel);
-//     midiByte(_pitch);
-//     midiByte(_vel);
-// }
-//
-// //  plays a MIDI note.  Doesn't check to see that
-// //  cmd is greater than 127, or that data values are  less than 127:
-// void midiNoteOff(byte _chan, byte _pitch, byte _vel) {
-// //  Serial.write(cmd);
-// //  Serial.write(_pitch);
-// //  Serial.write(_vel);
-//     midiByte(0x80 | _chan);
-//     midiByte(_pitch);
-//     midiByte(_vel);
-// }
-//
-// //  Sends a MIDI control change
-// void midiControlChange(byte channel, byte ccNum, byte value) {
-// //  Serial.write(cmd);
-// //  Serial.write(pitch);
-// //  Serial.write(velocity);
-//     midiByte(0xB0 | channel);
-//     midiByte(ccNum);
-//     midiByte(value);
-// }
-//
-// //  Sends a MIDI RPN change
-// void midiRPN(byte channel, byte cc100, byte cc101, byte value) {
-//     midiByte(0xB0 | channel);
-//     midiByte(0x64);
-//     midiByte(cc100);
-//     //Serial.write(0xB0 | channel);
-//     midiByte(0x65);
-//     midiByte(cc101);
-//     //Serial.write(0xB0 | channel);
-//     midiByte(0x06);
-//     midiByte(value);
-//     // Set RPN to null so that further spuriuous controller messages are ignored
-//     midiByte(0x64);
-//     midiByte(0x7F);
-//     midiByte(0x65);
-//     midiByte(0x7F);
-//     // delay(50);
-// }
-//
-// //  Sends a MIDI RPN change
-// void midiNRPN(byte channel, byte msb, byte lsb, byte value) {
-//     midiByte(0xB0 | channel);
-//     midiByte(0x63);
-//     midiByte(msb);
-//     //Serial.write(0xB0 | channel);
-//     midiByte(0x62);
-//     midiByte(lsb);
-//     //Serial.write(0xB0 | channel);
-//     midiByte(0x06);
-//     midiByte(value);
-//     // Set RPN to null so that further spuriuous controller messages are ignored
-//     midiByte(0x62);
-//     midiByte(0x7F);
-//     midiByte(0x63);
-//     midiByte(0x7F);
-//     // delay(50);
-// }
-
-
-
 
 // Send sysex data
 void midiSysEx(byte addr1, byte addr2, byte value) {

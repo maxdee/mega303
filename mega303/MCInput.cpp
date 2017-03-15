@@ -44,6 +44,8 @@ void MCInput::update(){
 		for(int i = 0; i < 8; i++){
 			pinMode(columnPins[i], INPUT);
 			tmp = digitalRead(columnPins[i]);
+			if(tmp) tmp = 0;
+			else tmp = 1;
 			if(tmp != bitRead(buttonBuffer[_row], i)){
 				bitWrite(buttonBuffer[_row], i, tmp);
 				if(_row == 4 || _row == 0){

@@ -4,9 +4,25 @@
 MCPart::MCPart(){
 
 }
+
 void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
+}
+
+void MCPart::event(uint8_t _id, uint8_t _val){
+	switch(_id){
+		case PART_NOTE_ON:
+			noteOn(_val, 100);
+			break;
+		case PART_NOTE_OFF:
+			noteOff(_val, 100);
+			break;
+		// default:
+		// char _buf[12];
+		// sprintf(_buf, "%03d%03d", _param, _val);
+		// mcInput->displayString(_buf);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

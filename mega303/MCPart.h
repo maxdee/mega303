@@ -3,6 +3,8 @@
 #define MCPart_h
 
 #include "Arduino.h"
+#include "MCConstants.h"
+
 
 class MCPart {
 	public:
@@ -11,6 +13,8 @@ class MCPart {
 		HardwareSerial * serial;
 	public:
 		void begin(HardwareSerial * _serial, uint8_t _chan);
+
+		void event(uint8_t _id, uint8_t _val);
 		// midi events
 		void noteOn(uint8_t _pitch, uint8_t _vel);
 		void noteOff(uint8_t _pitch, uint8_t _vel);

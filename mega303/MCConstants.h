@@ -3,6 +3,22 @@
 
 #define PART_COUNT 8
 
+// something like this?
+typedef struct {
+	int steps[16]; // notes 1-127
+	int changed; // changes if any step modified
+} sixteenStep;
+// row column lookup for buttons
+// const uint8_t BUTTON_LOOKUP[][] = {
+// 		{0, 1, 2, 3, 4, 5, 6, 7},
+// 		{0, 1, 2, 3, 4, 5, 6, 7},
+// 		{0, 1, 2, 3, 4, 5, 6, 7}
+// };
+// then make button codes.
+// but what is the reverse? for the LEDs?
+// or should it be a struct with row, col, index?
+
+
 ////////////////////////////////////////////////////
 // Parameters or whatever
 
@@ -81,7 +97,15 @@ const int STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
 							 0, 0, 0, 0, 0, 0, 0, 0,
 							 1, 2, 3, 4, 5, 6, 7, 8
 						 	};
-const int POTENTIOMETER[] = {127,128,129,130,131,132,133};
+// const int STEPS_OFFSET
+const int POTENTIOMETER[] = {149, 148, 147, 146, 145, 144, 143};
+#define POT_0 143
+#define POT_1 144
+#define POT_2 145
+#define POT_3 146
+#define POT_4 147
+#define POT_5 148
+#define POT_6 149
 
 const int STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
 
