@@ -8,6 +8,7 @@ MCPart::MCPart(){
 void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
+	memset(steps, 0, sizeof(steps[0][0]) * STEP_COUNT * SLOT_COUNT);
 }
 
 void MCPart::event(uint8_t _id, uint8_t _val){
@@ -18,10 +19,50 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_NOTE_OFF:
 			noteOff(_val, 100);
 			break;
+		case PART_ADD_NOTE:
+			addNote(currentStep, _val, 100);
+			break;
+		case PART_CLEAR_ALL:
+			clearAll();
+			break;
+		case PART_CLEAR_STEP:
+			clearStep(_val);
+			break;
 		// default:
 		// char _buf[12];
 		// sprintf(_buf, "%03d%03d", _param, _val);
 		// mcInput->displayString(_buf);
+	}
+}
+
+void MCPart::clearStep(int _step){
+	for(int i = 0; i < 127; i++){
+		steps[_step][i] = 0;
+	}
+}
+
+void MCPart::clearAll(){
+	for(int i = 0; i < STEP_COUNT; i++){
+		clearStep(i);
+	}
+}
+
+void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
+	steps[_step][currentSlot] = _pitch;
+	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch;
+	currentSlot++;
+	currentSlot %= SLOT_COUNT;
+}
+
+void MCPart::step(int _step){
+	currentStep = _step;
+	for(int i = 0; i < SLOT_COUNT; i++){
+		if(steps[_step][i] >= 128) {
+			noteOff(steps[_step][i]-128, 0);
+		}
+		else if(steps[_step][i] > 0) {
+			noteOn(steps[_step][i], 100);
+		}
 	}
 }
 

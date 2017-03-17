@@ -1,26 +1,32 @@
 #ifndef MCConstants_h
 #define MCConstants_h
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Notes
+///////////////////////////////////////////////////////////////////////////////
+/**
+ * MCInput produces events with a ID and a value
+ * MCMode takes these ID and produces and parameter change for parts.
+ * ID 127 to 142 step buttons
+ * ID 143 to 149 pots
+ *
+ */
+
+#define STEP_COUNT 16
+#define SLOT_COUNT 8
 #define PART_COUNT 8
+
 
 // something like this?
 typedef struct {
 	int steps[16]; // notes 1-127
 	int changed; // changes if any step modified
 } sixteenStep;
-// row column lookup for buttons
-// const uint8_t BUTTON_LOOKUP[][] = {
-// 		{0, 1, 2, 3, 4, 5, 6, 7},
-// 		{0, 1, 2, 3, 4, 5, 6, 7},
-// 		{0, 1, 2, 3, 4, 5, 6, 7}
-// };
-// then make button codes.
-// but what is the reverse? for the LEDs?
-// or should it be a struct with row, col, index?
 
-
-////////////////////////////////////////////////////
-// Parameters or whatever
+///////////////////////////////////////////////////////////////////////////////
+// Parameters
+///////////////////////////////////////////////////////////////////////////////
 
 #define PART_NOTE_OFF 			0
 #define PART_NOTE_ON 			1
@@ -50,7 +56,13 @@ typedef struct {
 #define PART_EXPRESSION			25
 #define PART_SUSTAIN			26
 
-////////////////////////////////////////////////////
+#define PART_ADD_NOTE 			27
+#define PART_CLEAR_STEP			28
+#define PART_CLEAR_ALL 			29
+
+///////////////////////////////////////////////////////////////////////////////
+// input ID
+///////////////////////////////////////////////////////////////////////////////
 
 #define SCALE_BUTTON 113
 #define FUNC_BUTTON 114
@@ -85,8 +97,8 @@ typedef struct {
 #define ENTER_BUTTON 21
 #define EXIT_BUTTON 22
 
-#define ENCODER_BUTTON 128
-#define TAP_BUTTON 129
+#define ENCODER_BUTTON 150
+#define TAP_BUTTON 151
 
 const int PART_BUTTON[] = {64, 65, 66, 67, 68, 69, 70, 71};
 

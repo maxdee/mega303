@@ -3,6 +3,9 @@
 
 MCMode::MCMode(){
 	velocity = 100;
+	octave = 0;
+	function = false;
+	record = false;
 }
 
 void MCMode::begin(HardwareSerial * _serial){
@@ -14,7 +17,7 @@ void MCMode::setInput(MCInput * _input){
 	mcInput = _input;
 }
 
-void MCMode::setParts(MCPart *_mcParts){
+void MCMode::setParts(MCPart * _mcParts){
 	mcParts = _mcParts;
 }
 
@@ -31,11 +34,32 @@ void MCMode::event(int _id, int _val){
 			}
 			mcInput->setLED(_id, bitRead(partSelector, tmp));
 		}
+		else if(_id == FUNC_BUTTON){
+			function = !function;
+			mcInput->setLED(FUNC_LED, function);
+		}
+		else if(_id == REC_BUTTON){
+			record = !record;
+			mcInput->setLED(REC_LED, record);
+		}
+		else if(_id == OCTAVE_UP_BUTTON || _id == OCTAVE_DOWN_BUTTON){
+			if(_id == OCTAVE_UP_BUTTON) octave++;
+			else octave--;
+			if(octave > 6) octave = 6;
+			else if(octave < 0) octave = 0;
+			if(octave == 0) mcInput->setLED(OCTAVE_DOWN_LED, 1);
+			else if(octave == 6) mcInput->setLED(OCTAVE_UP_LED, 1);
+			else {
+				mcInput->setLED(OCTAVE_DOWN_LED, 0);
+				mcInput->setLED(OCTAVE_UP_LED, 0);
+			}
+		}
 	}
 }
 
-void MCMode::update(){
+void MCMode::update(uint8_t _step){
 	// push ledState to mcInput?
+	currentStep = _step;
 }
 void MCMode::unSelectMode(){
 	memcpy(localLEDState, (*mcInput).LEDStates, 16);
@@ -62,8 +86,8 @@ ModeOne::ModeOne(){
 	velocity = 100;
 }
 
-void ModeOne::update(){
-
+void ModeOne::update(uint8_t _step){
+	MCMode::update(_step);
 }
 
 void ModeOne::event(int _id, int _val){
@@ -72,13 +96,19 @@ void ModeOne::event(int _id, int _val){
 	// sprintf(_buf, "%03d%03d", _id, _val);
 	// mcInput->displayString(_buf);
 	// iterate over parts, call for selected parts
-	if(_id > 127 && _id < 143){
+	if(function) return;
+	if(_id >= 127 && _id <= 143){
 		_id -= 127;
-		if(_val == 1) controlParts(PART_NOTE_ON, _id);
+		_id += octave*16;
+		if(_val == 1) {
+			controlParts(PART_ADD_NOTE, _id);
+			controlParts(PART_NOTE_ON, _id);
+		}
 		else controlParts(PART_NOTE_OFF, _id);
 	}
+	else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
 	else {
-		controlParts(_id, _val);
+		// controlParts(_id, _val);
 	}
 }
 
@@ -92,7 +122,8 @@ ModeTwo::ModeTwo(){
 	velocity = 100;
 }
 
-void ModeTwo::update(){
+void ModeTwo::update(uint8_t _step){
+	MCMode::update(_step);
 
 }
 
@@ -122,7 +153,9 @@ ModeThree::ModeThree(){
 	velocity = 100;
 }
 
-void ModeThree::update(){
+void ModeThree::update(uint8_t _step){
+	MCMode::update(_step);
+
 	cnt++;
 	if(cnt % (div+1) == 0){
 		controlParts(PART_NOTE_OFF, note);

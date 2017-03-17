@@ -51,9 +51,16 @@ class MCPart {
 		void sustain(uint8_t _val);
 
 
+		// steps
+		uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		int currentStep;
+		int currentSlot;
+		//
+		void clearStep(int _step);
+		void clearAll();
+		void addNote(int _step, uint8_t _pitch, uint8_t _vel);
 
-
-
+		void step(int _step);
 	private:
 };
 

@@ -24,11 +24,13 @@ uint16_t cycleCount = 0;
 MCInput input ;
 MCPart mcParts[PART_COUNT];
 
-#define MODE_COUNT 3
+#define MODE_COUNT 4
 MCMode * mode[MODE_COUNT];// = {ModeTwo(), ModeTwo(),ModeTwo()};
 ModeOne modeOne;
 ModeTwo modeTwo;
 ModeThree modeThree;
+ModeThree modeThree2;
+
 
 
 int modeIndex;
@@ -42,7 +44,7 @@ void setup() {
 
 	Serial.begin(9600);
     Timer1.initialize(5000);
-    Timer1.attachInterrupt(timed);
+    // Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
     // Timer3.attachInterrupt(frequentCheck);
     soundModuleMode();
@@ -60,6 +62,8 @@ void setup() {
     mode[0] = &modeOne;
     mode[1] = &modeTwo;
     mode[2] = &modeThree;
+    mode[3] = &modeThree2;
+
 
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->begin(&Serial);
@@ -74,25 +78,37 @@ void setupPart(uint8_t _i){
     mcParts[_i].begin(&Serial1, _i == 0 ? 9 : _i);
 }
 
-int ha = 0;
-int cnt = 0;
-int currentNote = 0;
-int rate = 0;
-int low = 0;
-int high = 0;
-
 void loop() {
     input.update();
+    timed();
     // Serial.println(input.checkButton(4,0));
     // snifMidiIn();
 }
 
+bool doStep;
+int rate = 30;
+
 void timed(){
     cycleCount++;
     cycleCount %= rate;
-    for(int i = 0; i < MODE_COUNT; i++){
-        mode[i]->update();
+    if(cycleCount == 0){
+        step++;
+        step%=16;
+        doStep = true;
+        char _buf[12];
+        sprintf(_buf, "YES%03d", step);
+        input.displayString(_buf);
     }
+    for(int i = 0; i < PART_COUNT; i++){
+        if(doStep){
+            mcParts[i].step(step);
+        }
+        // mcParts[i].update();
+    }
+    for(int i = 0; i < MODE_COUNT; i++){
+        mode[i]->update(step);
+    }
+    doStep = false;
 }
 
 
@@ -103,8 +119,8 @@ void timed(){
 void setMode(int _mode){
     mode[modeIndex]->unSelectMode();
     modeIndex = _mode;
+    if(modeIndex < 0) modeIndex = MODE_COUNT-1;
     modeIndex %= MODE_COUNT;
-    if(modeIndex < 0) modeIndex = 0;
     mode[modeIndex]->selectMode();
     char _buf[12];
     sprintf(_buf, "MoD%03d", modeIndex);
@@ -117,9 +133,7 @@ void event(int _index, int _state){
         if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);
         else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex+1);
     }
-
 }
-
 
 // char _buf[12];
 // sprintf(_buf, "%03d%03d", _pot, _val);
@@ -134,7 +148,6 @@ void printByte(byte _b){
     Serial.print(" ");
     Serial.println(_b, HEX);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Midi

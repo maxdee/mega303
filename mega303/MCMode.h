@@ -13,24 +13,28 @@
 class MCMode {
 	public:
 		MCMode();
-		virtual void update();
+		virtual void begin(HardwareSerial * _serial);
+		virtual void update(uint8_t _step);
 		virtual void event(int _id, int _val);
 
 		void setInput(MCInput * _input);
 		void setParts(MCPart * _parts);
 		void selectMode();
 		void unSelectMode();
-
 		void controlParts(int _id, int _val);
 		MCInput * mcInput;
 		MCPart * mcParts;
 		int velocity;
+		// locae states that should be in most modes
 		byte partSelector;
+		bool function;
+		bool record;
+		uint8_t octave;
 		// debug
 		HardwareSerial * serial;
-		void begin(HardwareSerial * _serial);
 
 	private:
+		int currentStep;
 		int localLEDState[16];
 		uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
 		// state could be initialized as
@@ -50,14 +54,14 @@ class ModeOne : public MCMode {
 	public :
 		ModeOne();
 		virtual void event(int _id, int _val);
-		virtual void update();
+		virtual void update(uint8_t _step);
 };
 
 class ModeTwo : public MCMode {
 	public :
 		ModeTwo();
 		virtual void event(int _id, int _val);
-		virtual void update();
+		virtual void update(uint8_t _step);
 };
 
 class ModeThree : public MCMode {
@@ -72,6 +76,19 @@ class ModeThree : public MCMode {
 
 		ModeThree();
 		virtual void event(int _id, int _val);
-		virtual void update();
+		virtual void update(uint8_t _step);
 };
+
+
+// class DrumMode : public MCMode {
+// 	private:
+//
+// 	public :
+// 		uint8_t note;
+// 		uint8_t step;
+//
+// 		DrumMode();
+// 		virtual void event(int _id, int _val);
+// 		virtual void update(uint8_t _step);
+// };
 #endif
