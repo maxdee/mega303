@@ -128,6 +128,9 @@ void setMode(int _mode){
 }
 
 void event(int _index, int _state){
+    // char _buf[12];
+    // sprintf(_buf, "%03d%03d", _index, _state);
+    // input.displayString(_buf);
     mode[modeIndex]->event(_index, _state);
     if(_state == 1 && input.checkButton(SHIFT_BUTTON)){
         if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);

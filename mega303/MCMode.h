@@ -16,7 +16,7 @@ class MCMode {
 		virtual void begin(HardwareSerial * _serial);
 		virtual void update(uint8_t _step);
 		virtual void event(uint8_t _id, uint8_t _val);
-
+		virtual uint8_t getKey(uint8_t _key);
 		void setInput(MCInput * _input);
 		void setParts(MCPart * _parts);
 		void selectMode();
@@ -31,9 +31,14 @@ class MCMode {
 
 		uint8_t partSelector;
 		// locale states that should be in most modes
-		static bool function;
-		static bool record;
+		bool function;
+		bool record;
+		bool partMute;
+		bool partSelect;
+		bool rhythmMute;
+
 		static uint8_t octave;
+		static uint8_t selectRadio;
 		// debug
 		HardwareSerial * serial;
 

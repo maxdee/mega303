@@ -2,9 +2,11 @@
 #include "MCMode.h"
 
 // uint8_t MCMode::partSelector;
-bool MCMode::function;
-bool MCMode::record;
+// bool MCMode::function;
+// bool MCMode::record;
 uint8_t MCMode::octave;
+uint8_t MCMode::selectRadio;
+
 
 
 MCMode::MCMode(){
@@ -27,9 +29,6 @@ void MCMode::setParts(MCPart * _mcParts){
 }
 
 void MCMode::event(uint8_t _id, uint8_t _val){
-	// serial->print(_id);
-	// serial->print(' ');
-	// serial->println(_val);
 	if(_val){
 		// check for part selection
 		if(_id >= 64 && _id <= 71){
@@ -42,29 +41,57 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 			}
 			mcInput->setLED(_id, bitRead(partSelector, tmp));
 		}
-		else if(_id == FUNC_BUTTON){
-			function = !function;
-			mcInput->setLED(FUNC_LED, function);
-		}
-		else if(_id == REC_BUTTON){
-			record = !record;
-			mcInput->setLED(REC_LED, record);
-		}
 		else if(_id == ENCODER_BUTTON){
-			incrementPatch(_val);
+			if(selectRadio == TONE_LED)	incrementPatch(_val);
 		}
 		else if(_id == OCTAVE_UP_BUTTON || _id == OCTAVE_DOWN_BUTTON){
 			if(_id == OCTAVE_UP_BUTTON) octave++;
 			else octave--;
-			if(octave > 6) octave = 6;
+			if(octave > 12) octave = 12;
 			else if(octave < 0) octave = 0;
 			if(octave == 0) mcInput->setLED(OCTAVE_DOWN_LED, 1);
-			else if(octave == 6) mcInput->setLED(OCTAVE_UP_LED, 1);
+			else if(octave == 12) mcInput->setLED(OCTAVE_UP_LED, 1);
 			else {
 				mcInput->setLED(OCTAVE_DOWN_LED, 0);
 				mcInput->setLED(OCTAVE_UP_LED, 0);
 			}
+			char _buf[12];
+			sprintf(_buf, "OCT%03d", octave);
+			mcInput->displayString(_buf);
 		}
+		else if(!mcInput->checkButton(SHIFT_BUTTON) && _id == SELECT_RIGHT_BUTTON || _id == SELECT_LEFT_BUTTON){
+			mcInput->setLED(selectRadio, 0);
+			if(_id == SELECT_RIGHT_BUTTON) selectRadio++;
+			else selectRadio--;
+			if(selectRadio > 92) selectRadio = 92;
+			else if(selectRadio < 88) selectRadio = 88;
+			mcInput->setLED(selectRadio, 1);
+		}
+		else {
+			switch(_id){
+				case FUNC_BUTTON:
+					function = !function;
+					mcInput->setLED(FUNC_LED, function);
+					break;
+				case REC_BUTTON:
+					record = !record;
+					mcInput->setLED(REC_LED, record);
+					break;
+				case SELECT_PART_BUTTON:
+					partSelect = !partSelect;
+					mcInput->setLED(SELECT_PART_LED, partSelect);
+					break;
+				case MUTE_PART_BUTTON:
+					partMute = !partMute;
+					mcInput->setLED(MUTE_PART_LED, partMute);
+					break;
+				case RHYTHM_MUTE_BUTTON:
+					rhythmMute = !rhythmMute;
+					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMute);
+					break;
+			}
+		}
+
 	}
 }
 
@@ -76,12 +103,17 @@ void MCMode::incrementPatch(int _v){
 	char _buf[12];
 	sprintf(_buf, "PGM%03d", patchIndex);
 	mcInput->displayString(_buf);
-	for(int i = 0; i < PART_COUNT; i++){
+	for(int i = 1; i < PART_COUNT; i++){
 		if(bitRead(partSelector, i)){
 			// serial->println(i);
 			(&mcParts[i])->setPatch(patchIndex);
 		}
 	}
+}
+
+uint8_t MCMode::getKey(uint8_t _key){
+	if(_key < 127 || _key > 143) return 0;
+	else return (_key-127) + octave * 8;
 }
 
 void MCMode::update(uint8_t _step){
@@ -128,14 +160,13 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 	// mcInput->displayString(_buf);
 	// iterate over parts, call for selected parts
 	// if(function) return;
-	if(_id >= 127 && _id <= 143){
-		_id -= 127;
-		_id += octave*16;
+	int _key = getKey(_id);
+	if(_key > 0){
 		if(_val == 1) {
 			// controlParts(PART_ADD_NOTE, _id);
-			controlParts(PART_NOTE_ON, _id);
+			controlParts(PART_NOTE_ON, _key);
 		}
-		else controlParts(PART_NOTE_OFF, _id);
+		else controlParts(PART_NOTE_OFF, _key);
 	}
 	else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
 	else {
@@ -163,11 +194,11 @@ void ModeTwo::event(uint8_t _id, uint8_t _val){
 	// sprintf(_buf, "%03d%03d", _id, _val);
 	// mcInput->displayString(_buf);
 	// iterate over parts, call for selected parts
-	if(_id >= 127 && _id < 143){
-		_id -= 127;
-		_id *= 3;
-		if(_val == 1) controlParts(PART_NOTE_ON, _id);
-		else controlParts(PART_NOTE_OFF, _id);
+	int _key = getKey(_id);
+	if(_key > 0){
+		_key *= 3;
+		if(_val == 1) controlParts(PART_NOTE_ON, _key);
+		else controlParts(PART_NOTE_OFF, _key);
 	}
 	else {
 		controlParts(_id, _val);

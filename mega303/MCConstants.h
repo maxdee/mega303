@@ -70,8 +70,8 @@
 #define FUNC_BUTTON 114
 #define SHIFT_BUTTON 115
 
-#define PART_SELECT_BUTTON 56
-#define PART_MUTE_BUTTON 58
+#define SELECT_PART_BUTTON 56
+#define MUTE_PART_BUTTON 58
 #define RHYTHM_MUTE_BUTTON 57
 
 #define ARPEGGIO_BUTTON 60
@@ -133,8 +133,8 @@ const uint8_t STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6,
 #define RPSSET_LED 45
 #define RECSTEP_LED 47
 
-#define PART_SELECT_LED 56
-#define PART_MUTE_LED 58
+#define SELECT_PART_LED 56
+#define MUTE_PART_LED 58
 #define RHYTHM_MUTE_LED 57
 
 #define ARPEGGIO_LED 60
