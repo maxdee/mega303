@@ -1,6 +1,12 @@
 #include "Arduino.h"
 #include "MCMode.h"
 
+uint8_t MCMode::partSelector;
+bool MCMode::function;
+bool MCMode::record;
+uint8_t MCMode::octave;
+
+
 MCMode::MCMode(){
 	velocity = 100;
 	octave = 0;
@@ -68,7 +74,7 @@ void MCMode::selectMode(){
 	memcpy((*mcInput).LEDStates, localLEDState, 16);
 }
 
-void MCMode::controlParts(int _id, int _val){
+void MCMode::controlParts(uint8_t _id, uint8_t _val){
 	for(int i = 0; i < PART_COUNT; i++){
 		if(bitRead(partSelector, i)){
 			// serial->println(i);
@@ -90,7 +96,7 @@ void ModeOne::update(uint8_t _step){
 	MCMode::update(_step);
 }
 
-void ModeOne::event(int _id, int _val){
+void ModeOne::event(uint8_t _id, uint8_t _val){
 	MCMode::event(_id, _val);
 	// char _buf[12];
 	// sprintf(_buf, "%03d%03d", _id, _val);
@@ -127,7 +133,7 @@ void ModeTwo::update(uint8_t _step){
 
 }
 
-void ModeTwo::event(int _id, int _val){
+void ModeTwo::event(uint8_t _id, uint8_t _val){
 	MCMode::event(_id, _val);
 	// char _buf[12];
 	// sprintf(_buf, "%03d%03d", _id, _val);
@@ -164,7 +170,7 @@ void ModeThree::update(uint8_t _step){
 	}
 }
 // random little drummer
-void ModeThree::event(int _id, int _val){
+void ModeThree::event(uint8_t _id, uint8_t _val){
 	MCMode::event(_id, _val);
 	// char _buf[12];
 	// sprintf(_buf, "%03d%03d", low, high);

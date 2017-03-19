@@ -19,10 +19,10 @@
 
 
 // something like this?
-typedef struct {
-	int steps[16]; // notes 1-127
-	int changed; // changes if any step modified
-} sixteenStep;
+// typedef struct {
+// 	int steps[16]; // notes 1-127
+// 	int changed; // changes if any step modified
+// } sixteenStep;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parameters
@@ -100,17 +100,17 @@ typedef struct {
 #define ENCODER_BUTTON 150
 #define TAP_BUTTON 151
 
-const int PART_BUTTON[] = {64, 65, 66, 67, 68, 69, 70, 71};
+const uint8_t PART_BUTTON[] = {64, 65, 66, 67, 68, 69, 70, 71};
 
-const int STEP_BUTTON[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
-const int STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
+const uint8_t STEP_BUTTON[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
+const uint8_t STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
 							 0, 0, 0, 0, 0, 0, 0, 0,
 							 0, 0, 0, 0, 0, 0, 0, 0,
 							 0, 0, 0, 0, 0, 0, 0, 0,
 							 1, 2, 3, 4, 5, 6, 7, 8
 						 	};
 // const int STEPS_OFFSET
-const int POTENTIOMETER[] = {149, 148, 147, 146, 145, 144, 143};
+const uint8_t POTENTIOMETER[] = {149, 148, 147, 146, 145, 144, 143};
 #define POT_0 143
 #define POT_1 144
 #define POT_2 145
@@ -119,7 +119,7 @@ const int POTENTIOMETER[] = {149, 148, 147, 146, 145, 144, 143};
 #define POT_5 148
 #define POT_6 149
 
-const int STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
+const uint8_t STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
 
 #define SONG_LED 40
 #define PATTERN_LED 41

@@ -21,22 +21,22 @@ class MCMode {
 		void setParts(MCPart * _parts);
 		void selectMode();
 		void unSelectMode();
-		void controlParts(int _id, int _val);
+		void controlParts(uint8_t _id, uint8_t _val);
 		MCInput * mcInput;
 		MCPart * mcParts;
-		int velocity;
-		// locae states that should be in most modes
-		byte partSelector;
-		bool function;
-		bool record;
-		uint8_t octave;
+		uint8_t velocity;
+		// locale states that should be in most modes
+		static uint8_t partSelector;
+		static bool function;
+		static bool record;
+		static uint8_t octave;
 		// debug
 		HardwareSerial * serial;
 
 	private:
-		int currentStep;
-		int localLEDState[16];
-		uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
+		uint8_t currentStep;
+		uint8_t localLEDState[16];
+		// uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
 		// state could be initialized as
 		// 0 for unused
 		// 1 for pushbutton, would be 2 if pressed
@@ -53,14 +53,14 @@ class MCMode {
 class ModeOne : public MCMode {
 	public :
 		ModeOne();
-		virtual void event(int _id, int _val);
+		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
 };
 
 class ModeTwo : public MCMode {
 	public :
 		ModeTwo();
-		virtual void event(int _id, int _val);
+		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
 };
 
@@ -75,7 +75,7 @@ class ModeThree : public MCMode {
 		uint16_t cnt;
 
 		ModeThree();
-		virtual void event(int _id, int _val);
+		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
 };
 

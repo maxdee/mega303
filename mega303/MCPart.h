@@ -50,11 +50,11 @@ class MCPart {
 		void expression(uint8_t _val);
 		void sustain(uint8_t _val);
 
-
 		// steps
 		uint8_t steps[STEP_COUNT][SLOT_COUNT];
-		int currentStep;
-		int currentSlot;
+		uint8_t currentStep;
+		uint8_t currentSlot;
+		uint8_t velocity;
 		//
 		void clearStep(int _step);
 		void clearAll();

@@ -14,13 +14,13 @@ void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
 void MCPart::event(uint8_t _id, uint8_t _val){
 	switch(_id){
 		case PART_NOTE_ON:
-			noteOn(_val, 100);
+			noteOn(_val, velocity);
 			break;
 		case PART_NOTE_OFF:
-			noteOff(_val, 100);
+			noteOff(_val, velocity);
 			break;
 		case PART_ADD_NOTE:
-			addNote(currentStep, _val, 100);
+			addNote(currentStep, _val, velocity);
 			break;
 		case PART_CLEAR_ALL:
 			clearAll();
