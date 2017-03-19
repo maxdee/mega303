@@ -22,11 +22,15 @@ class MCMode {
 		void selectMode();
 		void unSelectMode();
 		void controlParts(uint8_t _id, uint8_t _val);
+
+		uint8_t patchIndex;
+
+		void incrementPatch(int _v);
 		MCInput * mcInput;
 		MCPart * mcParts;
-		uint8_t velocity;
+
+		uint8_t partSelector;
 		// locale states that should be in most modes
-		static uint8_t partSelector;
 		static bool function;
 		static bool record;
 		static uint8_t octave;

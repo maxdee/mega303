@@ -89,15 +89,16 @@ bool doStep;
 int rate = 30;
 
 void timed(){
+
     cycleCount++;
     cycleCount %= rate;
     if(cycleCount == 0){
         step++;
         step%=16;
         doStep = true;
-        char _buf[12];
-        sprintf(_buf, "YES%03d", step);
-        input.displayString(_buf);
+        // char _buf[12];
+        // sprintf(_buf, "YES%03d", step);
+        // input.displayString(_buf);
     }
     for(int i = 0; i < PART_COUNT; i++){
         if(doStep){
@@ -129,7 +130,7 @@ void setMode(int _mode){
 
 void event(int _index, int _state){
     mode[modeIndex]->event(_index, _state);
-    if(_state == 1){
+    if(_state == 1 && input.checkButton(SHIFT_BUTTON)){
         if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);
         else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex+1);
     }

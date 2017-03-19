@@ -86,6 +86,7 @@ void MCInput::update(){
 	}
 }
 
+
 int MCInput::columnRowToIndex(uint8_t _row, uint8_t _col){
     return (_row * COL_COUNT)+_col;
 }
@@ -95,8 +96,8 @@ void MCInput::setLED(uint8_t _index, uint8_t _state){
 	bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
 }
 
-bool MCInput::checkButton(uint8_t _row, uint8_t _col){
-	return bitRead(buttonBuffer[_row], _col);
+bool MCInput::checkButton(uint8_t _id){
+	return bitRead(buttonBuffer[_id / COL_COUNT], _id % COL_COUNT);
 }
 
 // check encoder method, increments or decrements the encoder.val

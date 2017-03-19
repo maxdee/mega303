@@ -97,11 +97,17 @@ void MCPart::programChange(uint8_t _val){
 // RPN
 ///////////////////////////////////////////////////////////////////////////////
 
-void MCPart::setPatch(uint8_t _bank, uint8_t _pc){
-	controlChange(00, _bank);
-	controlChange(32, 00);
-	programChange(_pc);
+void MCPart::setPatch(uint16_t _index){
+	// controlChange(00, PROGRAM_BANKS[_index][0]);
+	// controlChange(32, 00);
+	// programChange(PROGRAM_BANKS[_index][1]);
 }
+
+// void MCPart::setPatch(uint8_t _bank, uint8_t _pc){
+// 	controlChange(00, _bank);
+// 	controlChange(32, 00);
+// 	programChange(_pc);
+// }
 
 void MCPart::setKit(uint8_t _pc){
 	programChange(_pc);

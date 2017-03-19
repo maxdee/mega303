@@ -12,7 +12,8 @@ class MCInput {
 		MCInput();
 		void update();
 		void setLED(uint8_t _index, uint8_t _state);
-		bool checkButton(uint8_t _row, uint8_t _col);
+		bool checkButton(uint8_t _id);
+		// bool checkButton(uint8_t _row, uint8_t _col);
 
 		void frequentCheck();
 		void displayString(char _str[]);

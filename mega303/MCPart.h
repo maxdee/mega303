@@ -21,7 +21,9 @@ class MCPart {
 		void controlChange(uint8_t _cc, uint8_t _val);
 		void programChange(uint8_t _val);
 
-		void setPatch(uint8_t _bank, uint8_t _pc);
+		// void setPatch(uint8_t _bank, uint8_t _pc);
+		void setPatch(uint16_t _index);
+
 		void setKit(uint8_t _pc);
 
 		void coarseTune(uint8_t _val);
