@@ -89,7 +89,6 @@ bool doStep;
 int rate = 30;
 
 void timed(){
-
     cycleCount++;
     cycleCount %= rate;
     if(cycleCount == 0){

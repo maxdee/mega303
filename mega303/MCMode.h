@@ -15,7 +15,7 @@ class MCMode {
 		MCMode();
 		virtual void begin(HardwareSerial * _serial);
 		virtual void update(uint8_t _step);
-		virtual void event(int _id, int _val);
+		virtual void event(uint8_t _id, uint8_t _val);
 
 		void setInput(MCInput * _input);
 		void setParts(MCPart * _parts);

@@ -26,7 +26,7 @@ void MCMode::setParts(MCPart * _mcParts){
 	mcParts = _mcParts;
 }
 
-void MCMode::event(int _id, int _val){
+void MCMode::event(uint8_t _id, uint8_t _val){
 	// serial->print(_id);
 	// serial->print(' ');
 	// serial->println(_val);
@@ -79,7 +79,7 @@ void MCMode::incrementPatch(int _v){
 	for(int i = 0; i < PART_COUNT; i++){
 		if(bitRead(partSelector, i)){
 			// serial->println(i);
-			// (&mcParts[i])->setPatch(patchIndex);
+			(&mcParts[i])->setPatch(patchIndex);
 		}
 	}
 }
@@ -132,7 +132,7 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 		_id -= 127;
 		_id += octave*16;
 		if(_val == 1) {
-			controlParts(PART_ADD_NOTE, _id);
+			// controlParts(PART_ADD_NOTE, _id);
 			controlParts(PART_NOTE_ON, _id);
 		}
 		else controlParts(PART_NOTE_OFF, _id);

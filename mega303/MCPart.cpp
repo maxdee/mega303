@@ -9,6 +9,7 @@ void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
 	memset(steps, 0, sizeof(steps[0][0]) * STEP_COUNT * SLOT_COUNT);
+	velocity = 100;
 }
 
 void MCPart::event(uint8_t _id, uint8_t _val){
@@ -98,9 +99,9 @@ void MCPart::programChange(uint8_t _val){
 ///////////////////////////////////////////////////////////////////////////////
 
 void MCPart::setPatch(uint16_t _index){
-	// controlChange(00, PROGRAM_BANKS[_index][0]);
-	// controlChange(32, 00);
-	// programChange(PROGRAM_BANKS[_index][1]);
+	controlChange(00, PROGRAM_BANKS[_index][0]);
+	controlChange(32, 00);
+	programChange(PROGRAM_BANKS[_index][1]);
 }
 
 // void MCPart::setPatch(uint8_t _bank, uint8_t _pc){
