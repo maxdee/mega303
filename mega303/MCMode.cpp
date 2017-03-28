@@ -18,6 +18,7 @@ MCMode::MCMode(){
 void MCMode::begin(HardwareSerial * _serial){
 	serial = _serial;
 	memset(localLEDState, 255, 16);
+	octave = 3;
 }
 
 void MCMode::setInput(MCInput * _input){
@@ -193,16 +194,36 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 	if(_key > 0){
 		if(_val == 1) {
 			// controlParts(PART_ADD_NOTE, _id);
-			controlParts(PART_NOTE_ON, _key);
-			if(record) {
-				controlParts(PART_ADD_NOTE, _key);
+			if(function && _key != 0){
+				controlParts(PART_CLEAR_STEP, _id-128);
 				updateStepLEDs();
+			}
+			else {
+				controlParts(PART_NOTE_ON, _key);
+				if(record) {
+					controlParts(PART_ADD_NOTE, _key);
+					updateStepLEDs();
+				}
 			}
 		}
 		else controlParts(PART_NOTE_OFF, _key);
 	}
 	else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
 	else {
+		// char _buf[12];
+		// sprintf(_buf, "%03d%03d", _id, _val);
+		// mcInput->displayString(_buf);
+		switch(_id){
+			case POT_0:
+				controlParts(PART_RELEASE, _val);
+				break;
+			case POT_4:
+				controlParts(PART_CUTOFF, _val);
+				break;
+			case POT_5:
+				controlParts(PART_RESONANCE, _val);
+				break;
+		}
 		// controlParts(_id, _val);
 	}
 }

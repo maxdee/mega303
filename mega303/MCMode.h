@@ -42,8 +42,8 @@ class MCMode {
 		// debug
 		HardwareSerial * serial;
 
-	private:
 		uint8_t currentStep;
+	private:
 		uint8_t localLEDState[16];
 		// uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
 		// state could be initialized as

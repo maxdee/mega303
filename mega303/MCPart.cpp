@@ -30,6 +30,12 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_CLEAR_STEP:
 			clearStep(_val);
 			break;
+		case PART_CUTOFF:
+			cutoff(_val);
+			break;
+		case PART_RESONANCE:
+			resonance(_val);
+			break;
 		// default:
 		// char _buf[12];
 		// sprintf(_buf, "%03d%03d", _param, _val);
@@ -38,7 +44,8 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 }
 
 void MCPart::clearStep(int _step){
-	for(int i = 0; i < 127; i++){
+	for(int i = 0; i < SLOT_COUNT; i++){
+		noteOff(steps[_step][i], 0);
 		steps[_step][i] = 0;
 		bitClear(stepLEDs, _step);
 	}
@@ -51,7 +58,9 @@ void MCPart::clearAll(){
 }
 
 void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
-	currentSlot = 0;
+	// currentSlot = 0;
+	if(steps[_step][currentSlot] > 0) noteOff(steps[_step][currentSlot], 0);
+	// check for empty slot?
 	steps[_step][currentSlot] = _pitch;
 	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch; //  adds a note off
 	bitClear(stepLEDs, _step);
@@ -61,13 +70,17 @@ void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
 }
 
 void MCPart::step(int _step){
+	// do note offs
+	for(int i = 0; i < SLOT_COUNT; i++){
+		if(steps[currentStep][i] > 0) {
+			noteOff(steps[currentStep][i], 0);
+		}
+	}
+	// do note on!
 	currentStep = _step;
 	for(int i = 0; i < SLOT_COUNT; i++){
-		if(steps[_step][i] >= 128) {
-			noteOff(steps[_step][i]-128, 0);
-		}
-		else if(steps[_step][i] > 0) {
-			noteOn(steps[_step][i], 100);
+		if(steps[currentStep][i] > 0) {
+			noteOn(steps[currentStep][i], 100);
 		}
 	}
 }
