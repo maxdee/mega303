@@ -12,6 +12,7 @@ class MCInput {
 		MCInput();
 		void update();
 		void setLED(uint8_t _index, uint8_t _state);
+		void setStepLEDs(uint16_t);
 		bool checkButton(uint8_t _id);
 		// bool checkButton(uint8_t _row, uint8_t _col);
 
@@ -20,7 +21,7 @@ class MCInput {
 		void displayBytes(byte _bytes[]);
 		// states?
 		void setEventCallback(void (*_eventCallback)(int, int));
-
+		void setStep(uint8_t _step);
 	private:
 		void (*eventCallback)(int,int);
 
@@ -64,6 +65,8 @@ class MCInput {
 		uint8_t rowMuxPins[4] = {47, 49, 51, 53};
 		// row indexs for 7 segments
 		uint8_t segmentRows[6] = {6, 3, 12, 13, 10, 15};
+
+		uint8_t step;
 
 		// rows
 		byte rowBytes[16] = {

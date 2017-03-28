@@ -22,7 +22,7 @@ class MCMode {
 		void selectMode();
 		void unSelectMode();
 		void controlParts(uint8_t _id, uint8_t _val);
-
+		void updateStepLEDs();
 		uint8_t patchIndex;
 
 		void incrementPatch(int _v);

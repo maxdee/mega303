@@ -54,6 +54,7 @@ class MCPart {
 
 		// steps
 		uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		uint16_t stepLEDs;
 		uint8_t currentStep;
 		uint8_t currentSlot;
 		uint8_t velocity;

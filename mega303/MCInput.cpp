@@ -35,8 +35,10 @@ void MCInput::update(){
 		// output the LEDs AND buffer the pots
 		digitalWrite(dirPin, HIGH);
 		for(int i = 0; i < 8; i++){
-			digitalWrite(columnPins[i], bitRead(LEDStates[_row], i));
+			if(i == STEP_LED[step] % COL_COUNT && _row == STEP_LED[step]/COL_COUNT)	digitalWrite(columnPins[i], !bitRead(LEDStates[_row], i));
+			else digitalWrite(columnPins[i], bitRead(LEDStates[_row], i));
 		}
+
 		frequentCheck();
 		delayMicroseconds(100);
 		// buffer the buttons
@@ -86,7 +88,9 @@ void MCInput::update(){
 	}
 }
 
-
+void MCInput::setStep(uint8_t _step){
+	step = _step;
+}
 int MCInput::columnRowToIndex(uint8_t _row, uint8_t _col){
     return (_row * COL_COUNT)+_col;
 }
@@ -94,6 +98,12 @@ int MCInput::columnRowToIndex(uint8_t _row, uint8_t _col){
 // set an led on or off
 void MCInput::setLED(uint8_t _index, uint8_t _state){
 	bitWrite(LEDStates[_index / COL_COUNT], _index % COL_COUNT, !_state);
+}
+
+void MCInput::setStepLEDs(uint16_t _step){
+	for(int i = 0; i < 16; i++){
+		setLED(STEP_LED[i], bitRead(_step, i));
+	}
 }
 
 bool MCInput::checkButton(uint8_t _id){

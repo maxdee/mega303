@@ -11,13 +11,6 @@
 // SEQ stuff
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef struct{
-    uint8_t chan_;
-    uint8_t pitch_;
-    uint8_t vel_;
-    uint8_t time_;
-} NoteEvent;
-
 int step = 0;
 uint16_t cycleCount = 0;
 
@@ -98,6 +91,7 @@ void timed(){
         // char _buf[12];
         // sprintf(_buf, "YES%03d", step);
         // input.displayString(_buf);
+        input.setStep(step);
     }
     for(int i = 0; i < PART_COUNT; i++){
         if(doStep){

@@ -38,11 +38,14 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 			}
 			else {
 				bitSet(partSelector, tmp);
+				updateStepLEDs();
 			}
 			mcInput->setLED(_id, bitRead(partSelector, tmp));
 		}
 		else if(_id == ENCODER_BUTTON){
 			if(selectRadio == TONE_LED)	incrementPatch(_val);
+			// else if(selectRadio == TEMPO_LED) incrementTempo(_val);
+
 		}
 		else if(_id == OCTAVE_UP_BUTTON || _id == OCTAVE_DOWN_BUTTON){
 			if(_id == OCTAVE_UP_BUTTON) octave++;
@@ -111,6 +114,32 @@ void MCMode::incrementPatch(int _v){
 	}
 }
 
+void MCMode::updateStepLEDs(){
+	// if(selectRadio == TONE_LED){
+		for(int i = 0; i < PART_COUNT; i++){
+			if(bitRead(partSelector, i)){
+				mcInput->setStepLEDs((&mcParts[i])->stepLEDs);
+			}
+		}
+	// }
+}
+
+// void MCMode::incrementTempo(int _v){
+// 	patchIndex += _v;
+// 	patchIndex %= PATCH_COUNT;
+// 	if(patchIndex < 0) patchIndex = PATCH_COUNT - 1;
+//
+// 	char _buf[12];
+// 	sprintf(_buf, "PGM%03d", patchIndex);
+// 	mcInput->displayString(_buf);
+// 	for(int i = 1; i < PART_COUNT; i++){
+// 		if(bitRead(partSelector, i)){
+// 			// serial->println(i);
+// 			(&mcParts[i])->setPatch(patchIndex);
+// 		}
+// 	}
+// }
+
 uint8_t MCMode::getKey(uint8_t _key){
 	if(_key < 127 || _key > 143) return 0;
 	else return (_key-127) + octave * 8;
@@ -165,6 +194,10 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 		if(_val == 1) {
 			// controlParts(PART_ADD_NOTE, _id);
 			controlParts(PART_NOTE_ON, _key);
+			if(record) {
+				controlParts(PART_ADD_NOTE, _key);
+				updateStepLEDs();
+			}
 		}
 		else controlParts(PART_NOTE_OFF, _key);
 	}

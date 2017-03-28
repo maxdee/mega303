@@ -10,6 +10,7 @@ void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
 	serial = _serial;
 	memset(steps, 0, sizeof(steps[0][0]) * STEP_COUNT * SLOT_COUNT);
 	velocity = 100;
+	stepLEDs = 0;
 }
 
 void MCPart::event(uint8_t _id, uint8_t _val){
@@ -39,6 +40,7 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 void MCPart::clearStep(int _step){
 	for(int i = 0; i < 127; i++){
 		steps[_step][i] = 0;
+		bitClear(stepLEDs, _step);
 	}
 }
 
@@ -49,8 +51,11 @@ void MCPart::clearAll(){
 }
 
 void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
+	currentSlot = 0;
 	steps[_step][currentSlot] = _pitch;
-	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch;
+	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch; //  adds a note off
+	bitClear(stepLEDs, _step);
+	bitSet(stepLEDs, _step);
 	currentSlot++;
 	currentSlot %= SLOT_COUNT;
 }
