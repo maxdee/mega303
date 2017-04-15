@@ -36,6 +36,21 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_RESONANCE:
 			resonance(_val);
 			break;
+		case PART_ATTACK:
+			attackTime(_val);
+			break;
+		case PART_DECAY:
+			decayTime(_val);
+			break;
+		case PART_RELEASE:
+			releaseTime(_val);
+			break;
+		case PART_COARSE_TUNE:
+			coarseTune(_val);
+			break;
+		case PART_FINE_TUNE:
+			fineTune(_val);
+			break;
 		// default:
 		// char _buf[12];
 		// sprintf(_buf, "%03d%03d", _param, _val);

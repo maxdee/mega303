@@ -23,7 +23,8 @@ class MCMode {
 		void unSelectMode();
 		void controlParts(uint8_t _id, uint8_t _val);
 		void updateStepLEDs();
-		uint8_t patchIndex;
+		void keyEvent(uint8_t _key);
+		uint16_t patchIndex;
 
 		void incrementPatch(int _v);
 		MCInput * mcInput;
@@ -64,6 +65,7 @@ class ModeOne : public MCMode {
 		ModeOne();
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
+		uint8_t selectedKey;
 };
 
 class ModeTwo : public MCMode {

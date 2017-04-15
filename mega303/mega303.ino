@@ -24,43 +24,44 @@ ModeTwo modeTwo;
 ModeThree modeThree;
 ModeThree modeThree2;
 
-
-
 int modeIndex;
+
+
+bool doStep;
+int rate = 28;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
-    Serial1.begin(31250);
-    Serial2.begin(31250);
-    // mcPart.begin(&Serial1, 1);
-    // mcPart.setPatch(64,22);
+    Serial1.begin(31250); // midi for the mc303
+    Serial2.begin(31250); // midi jacks on the back
+	Serial.begin(9600); // usb debugging
 
-	Serial.begin(9600);
-    Timer1.initialize(5000);
+    // Timer1.initialize(5000);
     // Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
     // Timer3.attachInterrupt(frequentCheck);
+
+    // set mc303 in sound module mode
     soundModuleMode();
     // const FlashString F("YES3.0.3")
     input.displayString("YES3.0.3");
-
+    // mc303 buttons and pots
     input.setEventCallback(event);
 
-    // mcPart.setPatch(64,22);
     // mcPart.releaseTime(110);
     // mcPart.portamentoTime(0);
+
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
+
     mode[0] = &modeOne;
     mode[1] = &modeTwo;
     mode[2] = &modeThree;
     mode[3] = &modeThree2;
 
-
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->begin(&Serial);
-
         mode[i]->setInput(&input);
         mode[i]->setParts(mcParts);
     }
@@ -77,9 +78,6 @@ void loop() {
     // Serial.println(input.checkButton(4,0));
     // snifMidiIn();
 }
-
-bool doStep;
-int rate = 30;
 
 void timed(){
     cycleCount++;
@@ -125,6 +123,10 @@ void event(int _index, int _state){
     // char _buf[12];
     // sprintf(_buf, "%03d%03d", _index, _state);
     // input.displayString(_buf);
+    // Serial.print(_index);
+    // Serial.print(' ');
+    // Serial.println(_state);
+
     mode[modeIndex]->event(_index, _state);
     if(_state == 1 && input.checkButton(SHIFT_BUTTON)){
         if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);

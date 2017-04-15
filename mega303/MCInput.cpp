@@ -119,10 +119,12 @@ void MCInput::frequentCheck(){
 	if((encoder.tmp == HIGH) && (encoder.prev == LOW)){
 		encoder.prev = encoder.tmp;
 		if(!digitalRead(encoder.pinA)){
-			encoder.val++;
+			// encoder.val++;
+			encoder.val = 2;
 		}
 		else {
-			encoder.val--;
+			// encoder.val--;
+			encoder.val = 1;
 		}
 	}
 	encoder.prev = encoder.tmp;

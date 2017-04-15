@@ -1,4 +1,4 @@
-#include "Arduino.h"
+w#include "Arduino.h"
 #include "MCMode.h"
 
 // uint8_t MCMode::partSelector;
@@ -6,8 +6,6 @@
 // bool MCMode::record;
 uint8_t MCMode::octave;
 uint8_t MCMode::selectRadio;
-
-
 
 MCMode::MCMode(){
 	octave = 0;
@@ -46,7 +44,6 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 		else if(_id == ENCODER_BUTTON){
 			if(selectRadio == TONE_LED)	incrementPatch(_val);
 			// else if(selectRadio == TEMPO_LED) incrementTempo(_val);
-
 		}
 		else if(_id == OCTAVE_UP_BUTTON || _id == OCTAVE_DOWN_BUTTON){
 			if(_id == OCTAVE_UP_BUTTON) octave++;
@@ -100,9 +97,14 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 }
 
 void MCMode::incrementPatch(int _v){
-	patchIndex += _v;
+	if(_v == 1){
+		patchIndex--;
+	}
+	else if(_v == 2){
+		patchIndex++;
+	}
+	if(patchIndex < 0) patchIndex = PATCH_COUNT;
 	patchIndex %= PATCH_COUNT;
-	if(patchIndex < 0) patchIndex = PATCH_COUNT - 1;
 
 	char _buf[12];
 	sprintf(_buf, "PGM%03d", patchIndex);
@@ -183,7 +185,6 @@ void ModeOne::update(uint8_t _step){
 }
 
 void ModeOne::event(uint8_t _id, uint8_t _val){
-
 	MCMode::event(_id, _val);
 	// char _buf[12];
 	// sprintf(_buf, "%03d%03d", _id, _val);
@@ -194,9 +195,19 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 	if(_key > 0){
 		if(_val == 1) {
 			// controlParts(PART_ADD_NOTE, _id);
-			if(function && _key != 0){
+			if(mcInput->checkButton(SHIFT_BUTTON) && _key != 0){
 				controlParts(PART_CLEAR_STEP, _id-128);
 				updateStepLEDs();
+			}
+			else if(function){
+				if(!record){
+					controlParts(PART_NOTE_ON, _key);
+					selectedKey = _key;
+				}
+				else {
+					controlParts(PART_ADD_NOTE, selectedKey);
+					updateStepLEDs();
+				}
 			}
 			else {
 				controlParts(PART_NOTE_ON, _key);
@@ -215,7 +226,16 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 		// mcInput->displayString(_buf);
 		switch(_id){
 			case POT_0:
+				controlParts(PART_ATTACK, _val);
+				break;
+			case POT_1:
 				controlParts(PART_RELEASE, _val);
+				break;
+			case POT_2:
+				controlParts(PART_FINE_TUNE, _val);
+				break;
+			case POT_3:
+				controlParts(PART_COARSE_TUNE, _val);
 				break;
 			case POT_4:
 				controlParts(PART_CUTOFF, _val);
@@ -223,6 +243,10 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 			case POT_5:
 				controlParts(PART_RESONANCE, _val);
 				break;
+			case POT_6:
+				controlParts(PART_RELEASE, _val);
+				break;
+
 		}
 		// controlParts(_id, _val);
 	}
