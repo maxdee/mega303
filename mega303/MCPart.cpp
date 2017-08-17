@@ -51,6 +51,48 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_FINE_TUNE:
 			fineTune(_val);
 			break;
+		case PART_CHORUS_DEPTH:
+			chorusDepth(_val);
+			break;
+		case PART_REVERB_DEPTH:
+			reverbDepth(_val);
+			break;
+
+		case PART_VIBRATO_RATE:
+			vibratoRate(_val);
+			break;
+		case PART_VIBRATO_DEPTH:
+			vibratoDepth(_val);
+			break;
+		case PART_VIBRATO_DELAY:
+			vibratoRate(_val);
+			break;
+		case PART_PAN:
+			pan(_val);
+			break;
+		case PART_VOLUME:
+			volume(_val);
+			break;
+		case PART_MODULATION:
+			modulation(_val);
+			break;
+
+		case PART_DRUM_PITCH:
+			drumPitch(previous, _val);
+			break;
+		case PART_DRUM_TVA:
+			drumTVA(previous, _val);
+			break;
+		case PART_DRUM_PAN:
+			drumPan(previous, _val);
+			break;
+		case PART_DRUM_REVERB:
+			drumReverb(previous, _val);
+			break;
+		case PART_DRUM_CHORUS:
+			drumChorus(previous, _val);
+			break;
+		// case
 		// default:
 		// char _buf[12];
 		// sprintf(_buf, "%03d%03d", _param, _val);
@@ -74,6 +116,7 @@ void MCPart::clearAll(){
 
 void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
 	// currentSlot = 0;
+	previous = _pitch;
 	if(steps[_step][currentSlot] > 0) noteOff(steps[_step][currentSlot], 0);
 	// check for empty slot?
 	steps[_step][currentSlot] = _pitch;
@@ -203,6 +246,12 @@ void MCPart::sustain(uint8_t _val){
 	controlChange(64, _val);
 }
 
+void MCPart::reverbDepth(uint8_t _val){
+	controlChange(91, _val);
+}
+void MCPart::chorusDepth(uint8_t _val){
+	controlChange(93, _val);
+}
 ///////////////////////////////////////////////////////////////////////////////
 // NRPN - patch editing
 ///////////////////////////////////////////////////////////////////////////////

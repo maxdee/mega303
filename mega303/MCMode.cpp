@@ -1,4 +1,4 @@
-w#include "Arduino.h"
+#include "Arduino.h"
 #include "MCMode.h"
 
 // uint8_t MCMode::partSelector;
@@ -17,6 +17,7 @@ void MCMode::begin(HardwareSerial * _serial){
 	serial = _serial;
 	memset(localLEDState, 255, 16);
 	octave = 3;
+	knobBank = 0;
 }
 
 void MCMode::setInput(MCInput * _input){
@@ -40,6 +41,13 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 				updateStepLEDs();
 			}
 			mcInput->setLED(_id, bitRead(partSelector, tmp));
+		}
+		else if(_id == FWD_BUTTON || _id == BWD_BUTTON){
+			if(_id == FWD_BUTTON) knobBank++;
+			else knobBank--;
+			char _buf[12];
+			sprintf(_buf, "knB%03d", knobBank);
+			mcInput->displayString(_buf);
 		}
 		else if(_id == ENCODER_BUTTON){
 			if(selectRadio == TONE_LED)	incrementPatch(_val);
@@ -224,12 +232,21 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 		// char _buf[12];
 		// sprintf(_buf, "%03d%03d", _id, _val);
 		// mcInput->displayString(_buf);
+		knobBanks(_id, _val);
+		// controlParts(_id, _val);
+	}
+}
+
+
+
+void MCMode::knobBanks(uint8_t _id, uint8_t _val){
+	if(knobBank == 0){
 		switch(_id){
 			case POT_0:
-				controlParts(PART_ATTACK, _val);
+				controlParts(PART_DECAY, _val);
 				break;
 			case POT_1:
-				controlParts(PART_RELEASE, _val);
+				controlParts(PART_ATTACK, _val);
 				break;
 			case POT_2:
 				controlParts(PART_FINE_TUNE, _val);
@@ -246,11 +263,90 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 			case POT_6:
 				controlParts(PART_RELEASE, _val);
 				break;
-
 		}
-		// controlParts(_id, _val);
+	}
+	else if(knobBank == 1){
+		switch(_id){
+			case POT_0:
+				controlParts(PART_ATTACK, _val);
+				break;
+			case POT_1:
+				controlParts(PART_VIBRATO_RATE, _val);
+				break;
+			case POT_2:
+				controlParts(PART_VIBRATO_DEPTH, _val);
+				break;
+			case POT_3:
+				controlParts(PART_VIBRATO_DELAY, _val);
+				break;
+			case POT_4:
+				controlParts(PART_MODULATION, _val);
+				break;
+			case POT_5:
+				controlParts(PART_PAN, _val);
+				break;
+			case POT_6:
+				controlParts(PART_VOLUME, _val);
+				break;
+		}
+	}
+	else if(knobBank == 2){
+		switch(_id){
+			case POT_0:
+				controlParts(PART_ATTACK, _val);
+				break;
+			case POT_1:
+				controlParts(PART_VIBRATO_RATE, _val);
+				break;
+			case POT_2:
+				controlParts(PART_VIBRATO_DEPTH, _val);
+				break;
+			case POT_3:
+				controlParts(PART_VIBRATO_DELAY, _val);
+				break;
+			case POT_4:
+				controlParts(PART_MODULATION, _val);
+				break;
+			case POT_5:
+				controlParts(PART_CHORUS_DEPTH, _val);
+				break;
+			case POT_6:
+				controlParts(PART_REVERB_DEPTH, _val);
+				break;
+		}
+	}
+	else if(knobBank == 3){
+		switch(_id){
+			case POT_0:
+				controlParts(PART_DRUM_PITCH, _val);
+				break;
+			case POT_1:
+				controlParts(PART_DRUM_TVA, _val);
+				break;
+			case POT_2:
+				controlParts(PART_DRUM_PAN, _val);
+				break;
+			case POT_3:
+				controlParts(PART_DRUM_REVERB, _val);
+				break;
+			case POT_4:
+				controlParts(PART_DRUM_CHORUS, _val);
+				break;
+			case POT_5:
+				controlParts(PART_DRUM_PAN, _val);
+				break;
+			case POT_6:
+				controlParts(PART_VOLUME, _val);
+				break;
+		}
+	}
+	else if(knobBank == 4){
+		char _buf[12];
+		sprintf(_buf, "%03d%03d", _id, _val);
+		mcInput->displayString(_buf);
 	}
 }
+
 
 
 ////////////////////////////////////////////////////////////////

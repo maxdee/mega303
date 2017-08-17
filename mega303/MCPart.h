@@ -10,6 +10,7 @@ class MCPart {
 	public:
 		MCPart();
 		uint8_t channel;
+		uint8_t previous;
 		HardwareSerial * serial;
 	public:
 		void begin(HardwareSerial * _serial, uint8_t _chan);
@@ -51,6 +52,9 @@ class MCPart {
 		void modulation(uint8_t _val);
 		void expression(uint8_t _val);
 		void sustain(uint8_t _val);
+		void reverbDepth(uint8_t _val);
+		void chorusDepth(uint8_t _val);
+
 
 		// steps
 		uint8_t steps[STEP_COUNT][SLOT_COUNT];

@@ -57,10 +57,13 @@
 #define PART_MODULATION			24
 #define PART_EXPRESSION			25
 #define PART_SUSTAIN			26
+#define PART_REVERB_DEPTH		27
+#define PART_CHORUS_DEPTH		28
 
-#define PART_ADD_NOTE 			27
-#define PART_CLEAR_STEP			28
-#define PART_CLEAR_ALL 			29
+
+#define PART_ADD_NOTE 			29
+#define PART_CLEAR_STEP			30
+#define PART_CLEAR_ALL 			31
 
 ///////////////////////////////////////////////////////////////////////////////
 // input ID

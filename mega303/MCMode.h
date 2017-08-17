@@ -24,6 +24,7 @@ class MCMode {
 		void controlParts(uint8_t _id, uint8_t _val);
 		void updateStepLEDs();
 		void keyEvent(uint8_t _key);
+		void knobBanks(uint8_t _id, uint8_t _val);
 		uint16_t patchIndex;
 
 		void incrementPatch(int _v);
@@ -44,6 +45,7 @@ class MCMode {
 		HardwareSerial * serial;
 
 		uint8_t currentStep;
+		uint8_t knobBank;
 	private:
 		uint8_t localLEDState[16];
 		// uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
