@@ -76,6 +76,9 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_MODULATION:
 			modulation(_val);
 			break;
+		case PART_PORTAMENTO_TIME:
+			portamentoTime(_val);
+			break;
 
 		case PART_DRUM_PITCH:
 			drumPitch(previous, _val);
@@ -91,6 +94,28 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 			break;
 		case PART_DRUM_CHORUS:
 			drumChorus(previous, _val);
+			break;
+
+		case REVERB_TYPE:
+			midiSysEx(REVERB_TYPE_ADDRESS, _val/15);
+			break;
+		case REVERB_TIME:
+			midiSysEx(REVERB_TIME_ADDRESS, _val);
+			break;
+		case REVERB_FEEDBACK:
+			midiSysEx(REVERB_FEEDBACK_ADDRESS, _val);
+			break;
+
+
+		case CHORUS_TYPE:
+			midiSysEx(CHORUS_RATE_ADDRESS, _val/15);
+			break;
+
+		case CHORUS_RATE:
+			midiSysEx(CHORUS_RATE_ADDRESS, _val);
+			break;
+		case CHORUS_FEEDBACK:
+			midiSysEx(CHORUS_FEEDBACK_ADDRESS, _val);
 			break;
 		// case
 		// default:
@@ -169,6 +194,49 @@ void MCPart::programChange(uint8_t _val){
 	serial -> write(0xC0 | channel);
 	serial -> write(_val);
 }
+//F0H || 41H 10H 00H 03H 12H || 00H 40H 01H 30H || 06H || checksum 09h || F7H
+//
+void MCPart::midiSysEx(uint8_t * _addr, uint8_t value){
+	byte data[13] = {0xF0, // 0
+		 			0x41, 0x10, 0x00, 0x03, 0x12, // 1 2 3 4 5
+					0x00, 0x00, 0x00, 0x00, // 6 7 8 9
+					0x00, // 10
+					0x00, // 11
+				 	0xF7}; //12
+
+	data[6] = _addr[0];
+	data[7] = _addr[1];
+	data[8] = _addr[2];
+	data[9] = _addr[3];
+	data[10] = value;
+
+	// byte checksum = GetRolandChecksum(data+5, 4);
+	byte _checksum = (_addr[0]+_addr[1]+_addr[2]+_addr[3]+value);
+	while(_checksum > 0x80) _checksum -= 0x80;
+	data[11] = 0x80 - _checksum;
+
+	// Sysex starts wth 0xF0, ends with 0xF7
+	for (int i = 0; i < 13; i++){
+		serial->write(data[i]);
+	}
+	// serial->write(0xF7);
+
+	// delay(50);
+}
+
+// calculate Roland sysex checksum
+byte MCPart::GetRolandChecksum(byte* data, int length){
+	// Roland sysex checksum = 128 - (data sum % 128)
+	int sum = 0;
+	for (int i = 0; i < length; i++)
+	sum += data[i];
+
+	int rem = sum % 128;
+	int checksum = (128 - rem);
+	//int check = sum + checksum;
+	return byte(checksum);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // RPN
@@ -222,8 +290,10 @@ void MCPart::portamentoTime(uint8_t _val){
 	else {
 		controlChange(126, 1); // mono on
 		controlChange(65, 127); // portamento on
+		controlChange(5, _val);
 	}
-	controlChange(5, _val);
+	// controlChange(66, _val);
+
 }
 
 void MCPart::pan(uint8_t _val){
@@ -252,6 +322,16 @@ void MCPart::reverbDepth(uint8_t _val){
 void MCPart::chorusDepth(uint8_t _val){
 	controlChange(93, _val);
 }
+
+// 00H 40H 01H 30H
+// void MCPart::reverbType(uint8_t _val){
+// 	midiSysEx(REVERB_TYPE_ADDRESS, _val/15);
+// }
+//
+//
+// void MCPart::chorusType(uint8_t _val){
+// 	midiSysEx(0x00, 0x40, 0x01, 0x38, _val/15);
+// }
 ///////////////////////////////////////////////////////////////////////////////
 // NRPN - patch editing
 ///////////////////////////////////////////////////////////////////////////////

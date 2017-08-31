@@ -60,10 +60,34 @@
 #define PART_REVERB_DEPTH		27
 #define PART_CHORUS_DEPTH		28
 
+#define REVERB_TYPE             29
+#define REVERB_TIME             30
+#define REVERB_FEEDBACK         31
 
-#define PART_ADD_NOTE 			29
-#define PART_CLEAR_STEP			30
-#define PART_CLEAR_ALL 			31
+
+#define CHORUS_TYPE             32
+#define CHORUS_RATE             33
+#define CHORUS_FEEDBACK         34
+
+
+#define PART_ADD_NOTE 			35
+#define PART_CLEAR_STEP			36
+#define PART_CLEAR_ALL 			37
+///////////////////////////////////////////////////////////////////////////////
+// sysex
+///////////////////////////////////////////////////////////////////////////////
+const uint8_t REVERB_TYPE_ADDRESS[4] = {0x00, 0x40, 0x01, 0x30};
+const uint8_t REVERB_TIME_ADDRESS[4] = {0x00, 0x40, 0x01, 0x34};
+const uint8_t REVERB_FEEDBACK_ADDRESS[4] = {0x00, 0x40, 0x01, 0x35};
+
+
+
+
+const uint8_t CHORUS_TYPE_ADDRESS[4] = {0x00, 0x40, 0x01, 0x38};
+const uint8_t CHORUS_RATE_ADDRESS[4] = {0x00, 0x40, 0x01, 0x3D};
+const uint8_t CHORUS_FEEDBACK_ADDRESS[4] = {0x00, 0x40, 0x01, 0x3B};
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // input ID

@@ -115,7 +115,8 @@ void MCMode::incrementPatch(int _v){
 	patchIndex %= PATCH_COUNT;
 
 	char _buf[12];
-	sprintf(_buf, "PGM%03d", patchIndex);
+	// sprintf(_buf, "PGM%03d", patchIndex);
+	sprintf(_buf, "%03d%03d", PROGRAM_BANKS[patchIndex][0], PROGRAM_BANKS[patchIndex][1]);
 	mcInput->displayString(_buf);
 	for(int i = 1; i < PART_COUNT; i++){
 		if(bitRead(partSelector, i)){
@@ -292,30 +293,45 @@ void MCMode::knobBanks(uint8_t _id, uint8_t _val){
 	}
 	else if(knobBank == 2){
 		switch(_id){
-			case POT_0:
-				controlParts(PART_ATTACK, _val);
-				break;
 			case POT_1:
-				controlParts(PART_VIBRATO_RATE, _val);
+				controlParts(CHORUS_TYPE, _val);
 				break;
 			case POT_2:
-				controlParts(PART_VIBRATO_DEPTH, _val);
+				controlParts(CHORUS_RATE, _val);
 				break;
 			case POT_3:
-				controlParts(PART_VIBRATO_DELAY, _val);
+				controlParts(CHORUS_FEEDBACK, _val);
 				break;
 			case POT_4:
-				controlParts(PART_MODULATION, _val);
 				break;
 			case POT_5:
+				break;
+			case POT_6:
 				controlParts(PART_CHORUS_DEPTH, _val);
+				break;
+		}
+	}
+	else if(knobBank == 3){
+		switch(_id){
+			case POT_1:
+				controlParts(REVERB_TYPE, _val);
+				break;
+			case POT_2:
+				controlParts(REVERB_TIME, _val);
+				break;
+			case POT_3:
+				controlParts(REVERB_FEEDBACK, _val);
+				break;
+			case POT_4:
+				break;
+			case POT_5:
 				break;
 			case POT_6:
 				controlParts(PART_REVERB_DEPTH, _val);
 				break;
 		}
 	}
-	else if(knobBank == 3){
+	else if(knobBank == 4){
 		switch(_id){
 			case POT_0:
 				controlParts(PART_DRUM_PITCH, _val);
@@ -340,7 +356,7 @@ void MCMode::knobBanks(uint8_t _id, uint8_t _val){
 				break;
 		}
 	}
-	else if(knobBank == 4){
+	else if(knobBank == 5){
 		char _buf[12];
 		sprintf(_buf, "%03d%03d", _id, _val);
 		mcInput->displayString(_buf);

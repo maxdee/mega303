@@ -165,23 +165,23 @@ void midiByte(byte _b){
 }
 
 // Send sysex data
-void midiSysEx(byte addr1, byte addr2, byte value) {
-    byte data[20] = { 0x41, 0x10, 0x00, 0x18, 0x12, 0x40, 0x00, 0x00, 0x00, 0x00 };
-    data[6] = addr1;
-    data[7] = addr2;
-    data[8] = value;
-    byte checksum = GetRolandChecksum(data+5, 4);
-    data[9] = checksum;
-
-    // Sysex starts wth 0xF0, ends with 0xF7
-    midiByte(0xF0);
-    for (int i = 0; i < 10; i++)
-        midiByte(data[i]);
-
-    midiByte(0xF7);
-
-    // delay(50);
-}
+// void midiSysEx(byte addr1, byte addr2, byte value) {
+//     byte data[20] = { 0x41, 0x10, 0x00, 0x18, 0x12, 0x40, 0x00, 0x00, 0x00, 0x00 };
+//     data[6] = addr1;
+//     data[7] = addr2;
+//     data[8] = value;
+//     byte checksum = GetRolandChecksum(data+5, 4);
+//     data[9] = checksum;
+//
+//     // Sysex starts wth 0xF0, ends with 0xF7
+//     midiByte(0xF0);
+//     for (int i = 0; i < 10; i++)
+//         midiByte(data[i]);
+//
+//     midiByte(0xF7);
+//
+//     // delay(50);
+// }
 
 // calculate Roland sysex checksum
 byte GetRolandChecksum(byte* data, int length) {

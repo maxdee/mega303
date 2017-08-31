@@ -21,6 +21,8 @@ class MCPart {
 		void noteOff(uint8_t _pitch, uint8_t _vel);
 		void controlChange(uint8_t _cc, uint8_t _val);
 		void programChange(uint8_t _val);
+		void midiSysEx(uint8_t * _addr, uint8_t value);
+		byte GetRolandChecksum(byte * data, int length);
 
 		// void setPatch(uint8_t _bank, uint8_t _pc);
 		void setPatch(uint16_t _index);
@@ -54,6 +56,9 @@ class MCPart {
 		void sustain(uint8_t _val);
 		void reverbDepth(uint8_t _val);
 		void chorusDepth(uint8_t _val);
+
+		// void reverbType(uint8_t _val);
+		// void chorusType(uint8_t _val);
 
 
 		// steps
