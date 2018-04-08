@@ -131,11 +131,12 @@ void MCInput::frequentCheck(){
 }
 
 void MCInput::displayString(char _str[]){
-    byte _segRows[] = {6, 3, 12, 13, 10, 15};
+    // byte _segRows[] = {6, 3, 12, 13, 10, 15};
     char _c;
     uint8_t _index = 0;
     for(int i = 0; i < 6; i++){
         _c = _str[_index++];
+
         if(_c == 46 && i > 0){
             i--;
             LEDStates[segmentRows[i]] ^= 1 << 7;
@@ -145,6 +146,25 @@ void MCInput::displayString(char _str[]){
         }
     }
 }
+
+void MCInput::pushDigit(char _c){
+	// byte _segRows[] = {6, 3, 12, 13, 10, 15};
+
+	// catch the dot
+	if(_c == '.'){
+		LEDStates[segmentRows[5]] ^= 1 << 7;
+	}
+	else {
+		// shift previous characters
+		for(int i = 0; i < 5; i++){
+			LEDStates[segmentRows[i]] = LEDStates[segmentRows[i+1]];
+		}
+		LEDStates[segmentRows[5]] = ~FONT_DEFAULT[_c-32];
+	}
+
+
+}
+
 void MCInput::displayBytes(byte _bytes[]){
     for(int i = 0; i < 6; i++){
 		LEDStates[segmentRows[i]] = _bytes[i];

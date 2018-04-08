@@ -18,6 +18,7 @@ class MCInput {
 
 		void frequentCheck();
 		void displayString(char _str[]);
+		void pushDigit(char _c);
 		void displayBytes(byte _bytes[]);
 		// states?
 		void setEventCallback(void (*_eventCallback)(int, int));

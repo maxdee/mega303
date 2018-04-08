@@ -3,6 +3,8 @@
 
 // #include "patches.h"
 #include "MCInput.h"
+#include "MCView.h"
+
 #include "MCPart.h"
 #include "MCConstants.h"
 #include "MCMode.h"
@@ -14,7 +16,8 @@
 int step = 0;
 uint16_t cycleCount = 0;
 
-MCInput input ;
+MCInput input;
+MCView view;
 MCPart mcParts[PART_COUNT];
 
 #define MODE_COUNT 4
@@ -35,7 +38,6 @@ void setup() {
     Serial1.begin(31250); // midi for the mc303
     Serial2.begin(31250); // midi jacks on the back
 	Serial.begin(9600); // usb debugging
-
     // Timer1.initialize(5000);
     // Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
@@ -44,14 +46,13 @@ void setup() {
     // set mc303 in sound module mode
     soundModuleMode();
     // const FlashString F("YES3.0.3")
-    input.displayString("YES3.0.3");
     // mc303 buttons and pots
     input.setEventCallback(event);
+    view.begin(&input);
+    view.printf("YES3.0.3");
 
     // mcPart.releaseTime(110);
     // mcPart.portamentoTime(0);
-
-
 
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
@@ -91,9 +92,7 @@ void timed(){
         step++;
         step%=16;
         doStep = true;
-        // char _buf[12];
-        // sprintf(_buf, "YES%03d", step);
-        // input.displayString(_buf);
+        // view.printf("STP%3i", step);
         input.setStep(step);
     }
     for(int i = 0; i < PART_COUNT; i++){

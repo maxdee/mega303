@@ -29,7 +29,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Parameters
 ///////////////////////////////////////////////////////////////////////////////
-enum {
+enum PartStuff{
  PART_NOTE_OFF 		=	0,
  PART_NOTE_ON 		=	1,
  PART_CONTROL_CHANGE	=	2,
@@ -59,7 +59,7 @@ enum {
  PART_SUSTAIN			=26,
  PART_REVERB_DEPTH		=27,
  PART_CHORUS_DEPTH		=28
-}
+};
 
 #define REVERB_TYPE             29
 #define REVERB_TIME             30
