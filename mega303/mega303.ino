@@ -51,6 +51,8 @@ void setup() {
     // mcPart.releaseTime(110);
     // mcPart.portamentoTime(0);
 
+
+
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
@@ -66,6 +68,9 @@ void setup() {
         mode[i]->setParts(mcParts);
     }
 
+    // mcParts[1].controlChange(0, 64);
+    // mcParts[1].controlChange(32, 0);
+    // mcParts[1].programChange(15);
 }
 
 void setupPart(uint8_t _i){

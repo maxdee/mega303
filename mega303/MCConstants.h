@@ -29,36 +29,37 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Parameters
 ///////////////////////////////////////////////////////////////////////////////
-
-#define PART_NOTE_OFF 			0
-#define PART_NOTE_ON 			1
-#define PART_CONTROL_CHANGE		2
-#define PART_PROGRAM_CHANGE 	3
-#define PART_PATCH 				4
-#define PART_KIT 				5
-#define PART_COARSE_TUNE 		6
-#define PART_FINE_TUNE 			7
-#define PART_CUTOFF 			8
-#define PART_RESONANCE 			9
-#define PART_PORTAMENTO_TIME 	10
-#define PART_VIBRATO_RATE		11
-#define PART_VIBRATO_DEPTH		12
-#define PART_VIBRATO_DELAY		13
-#define PART_ATTACK				14
-#define PART_DECAY				15
-#define PART_RELEASE			16
-#define PART_DRUM_PITCH			17
-#define PART_DRUM_TVA			18
-#define PART_DRUM_PAN			19
-#define PART_DRUM_REVERB		20
-#define PART_DRUM_CHORUS		21
-#define PART_PAN				22
-#define PART_VOLUME				23
-#define PART_MODULATION			24
-#define PART_EXPRESSION			25
-#define PART_SUSTAIN			26
-#define PART_REVERB_DEPTH		27
-#define PART_CHORUS_DEPTH		28
+enum {
+ PART_NOTE_OFF 		=	0,
+ PART_NOTE_ON 		=	1,
+ PART_CONTROL_CHANGE	=	2,
+ PART_PROGRAM_CHANGE =	3,
+ PART_PATCH 			=	4,
+ PART_KIT 			=	5,
+ PART_COARSE_TUNE 	=	6,
+ PART_FINE_TUNE 		=	7,
+ PART_CUTOFF 		=	8,
+ PART_RESONANCE 		=	9,
+ PART_PORTAMENTO_TIME 	=10,
+ PART_VIBRATO_RATE		=11,
+ PART_VIBRATO_DEPTH		=12,
+ PART_VIBRATO_DELAY		=13,
+ PART_ATTACK				=14,
+ PART_DECAY				=15,
+ PART_RELEASE			=16,
+ PART_DRUM_PITCH			=17,
+ PART_DRUM_TVA			=18,
+ PART_DRUM_PAN			=19,
+ PART_DRUM_REVERB		=20,
+ PART_DRUM_CHORUS		=21,
+ PART_PAN				=22,
+ PART_VOLUME				=23,
+ PART_MODULATION			=24,
+ PART_EXPRESSION			=25,
+ PART_SUSTAIN			=26,
+ PART_REVERB_DEPTH		=27,
+ PART_CHORUS_DEPTH		=28
+}
 
 #define REVERB_TYPE             29
 #define REVERB_TIME             30

@@ -115,13 +115,14 @@ void MCMode::incrementPatch(int _v){
 	patchIndex %= PATCH_COUNT;
 
 	char _buf[12];
-	// sprintf(_buf, "PGM%03d", patchIndex);
-	sprintf(_buf, "%03d%03d", PROGRAM_BANKS[patchIndex][0], PROGRAM_BANKS[patchIndex][1]);
+	sprintf(_buf, "PGM%03d", patchIndex);
+	// sprintf(_buf, "%03d%03d", PROGRAM_BANKS[patchIndex][0], PROGRAM_BANKS[patchIndex][1]);
 	mcInput->displayString(_buf);
 	for(int i = 1; i < PART_COUNT; i++){
 		if(bitRead(partSelector, i)){
 			// serial->println(i);
-			(&mcParts[i])->setPatch(patchIndex);
+			if(i == 0)(&mcParts[i])->setKit(patchIndex);
+			else (&mcParts[i])->setPatch(patchIndex);
 		}
 	}
 }
