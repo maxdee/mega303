@@ -64,7 +64,7 @@ void setup() {
     mode[3] = &modeThree2;
 
     for(int i = 0; i < MODE_COUNT; i++){
-        mode[i]->begin(&Serial);
+        mode[i]->begin(&view);
         mode[i]->setInput(&input);
         mode[i]->setParts(mcParts);
     }
@@ -75,7 +75,7 @@ void setup() {
 }
 
 void setupPart(uint8_t _i){
-    mcParts[_i].begin(&Serial1, _i == 0 ? 9 : _i);
+    mcParts[_i].begin(&Serial1, &view, _i == 0 ? 9 : _i);
 }
 
 void loop() {

@@ -6,6 +6,8 @@
 #include "MCConstants.h"
 #include "MCInput.h"
 #include "MCPart.h"
+#include "MCView.h"
+
 
 
 // #include "MC"
@@ -13,7 +15,7 @@
 class MCMode {
 	public:
 		MCMode();
-		virtual void begin(HardwareSerial * _serial);
+		virtual void begin(MCView * _view);
 		virtual void update(uint8_t _step);
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual uint8_t getKey(uint8_t _key);
@@ -25,27 +27,33 @@ class MCMode {
 		void updateStepLEDs();
 		void keyEvent(uint8_t _key);
 		void knobBanks(uint8_t _id, uint8_t _val);
-		uint16_t patchIndex;
+
 
 		void incrementPatch(int _v);
+		void drumSequenceEdit(uint8_t _id, uint8_t _val);
+		void sequenceEdit(uint8_t _id, uint8_t _val);
+
+
 		MCInput * mcInput;
 		MCPart * mcParts;
 
-		uint8_t partSelector;
+		uint8_t selectedParts;
 		// locale states that should be in most modes
-		bool function;
-		bool record;
-		bool partMute;
-		bool partSelect;
-		bool rhythmMute;
+		bool functionToggle;
+		bool recordToggle;
+		bool partMuteToggle;
+		bool partSelectToggle;
+		bool rhythmMuteToggle;
 
 		static uint8_t octave;
 		static uint8_t selectRadio;
 		// debug
-		HardwareSerial * serial;
+		MCView * view;
 
 		uint8_t currentStep;
 		uint8_t knobBank;
+		uint8_t selectedKey;
+
 	private:
 		uint8_t localLEDState[16];
 		// uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;
@@ -67,7 +75,7 @@ class ModeOne : public MCMode {
 		ModeOne();
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
-		uint8_t selectedKey;
+		virtual void knobBanks(uint8_t _id, uint8_t _val);
 };
 
 class ModeTwo : public MCMode {

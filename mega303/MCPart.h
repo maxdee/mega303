@@ -4,6 +4,8 @@
 
 #include "Arduino.h"
 #include "MCConstants.h"
+#include "MCView.h"
+
 
 
 class MCPart {
@@ -12,8 +14,10 @@ class MCPart {
 		uint8_t channel;
 		uint8_t previous;
 		HardwareSerial * serial;
+		MCView * view;
+
 	public:
-		void begin(HardwareSerial * _serial, uint8_t _chan);
+		void begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan);
 
 		void event(uint8_t _id, uint8_t _val);
 		// midi events
@@ -59,7 +63,7 @@ class MCPart {
 
 		// void reverbType(uint8_t _val);
 		// void chorusType(uint8_t _val);
-
+		uint16_t patchIndex;
 
 		// steps
 		uint8_t steps[STEP_COUNT][SLOT_COUNT];

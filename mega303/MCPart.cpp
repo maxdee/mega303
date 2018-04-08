@@ -1,16 +1,20 @@
 #include "Arduino.h"
 #include "MCPart.h"
 
+
 MCPart::MCPart(){
 
 }
 
-void MCPart::begin(HardwareSerial * _serial, uint8_t _chan){
+void MCPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
+	view = _view;
+
 	memset(steps, 0, sizeof(steps[0][0]) * STEP_COUNT * SLOT_COUNT);
 	velocity = 100;
 	stepLEDs = 0;
+	patchIndex = 0;
 }
 
 void MCPart::event(uint8_t _id, uint8_t _val){
@@ -172,6 +176,7 @@ void MCPart::step(int _step){
 // MIDI
 ///////////////////////////////////////////////////////////////////////////////
 
+
 void MCPart::noteOn(uint8_t _pitch, uint8_t _vel){
 	serial -> write(0x90 | channel);
 	serial -> write(_pitch);
@@ -243,6 +248,8 @@ byte MCPart::GetRolandChecksum(byte* data, int length){
 ///////////////////////////////////////////////////////////////////////////////
 
 void MCPart::setPatch(uint16_t _index){
+	patchIndex = _index;
+	// view->printf("%3i%3i", PROGRAM_BANKS[_index][0], PROGRAM_BANKS[_index][1]);
 	controlChange(00, PROGRAM_BANKS[_index][0]);
 	controlChange(32, 00);
 	programChange(PROGRAM_BANKS[_index][1]);
@@ -255,7 +262,8 @@ void MCPart::setPatch(uint16_t _index){
 // }
 
 void MCPart::setKit(uint8_t _pc){
-	programChange(_pc);
+	patchIndex = _pc;
+	programChange(DRUM_KITS[_pc]);
 }
 
 void MCPart::coarseTune(uint8_t _val){

@@ -30,35 +30,35 @@
 // Parameters
 ///////////////////////////////////////////////////////////////////////////////
 enum PartStuff{
- PART_NOTE_OFF 		=	0,
- PART_NOTE_ON 		=	1,
- PART_CONTROL_CHANGE	=	2,
- PART_PROGRAM_CHANGE =	3,
- PART_PATCH 			=	4,
- PART_KIT 			=	5,
- PART_COARSE_TUNE 	=	6,
- PART_FINE_TUNE 		=	7,
- PART_CUTOFF 		=	8,
- PART_RESONANCE 		=	9,
- PART_PORTAMENTO_TIME 	=10,
- PART_VIBRATO_RATE		=11,
- PART_VIBRATO_DEPTH		=12,
- PART_VIBRATO_DELAY		=13,
- PART_ATTACK				=14,
- PART_DECAY				=15,
- PART_RELEASE			=16,
- PART_DRUM_PITCH			=17,
- PART_DRUM_TVA			=18,
- PART_DRUM_PAN			=19,
- PART_DRUM_REVERB		=20,
- PART_DRUM_CHORUS		=21,
- PART_PAN				=22,
- PART_VOLUME				=23,
- PART_MODULATION			=24,
- PART_EXPRESSION			=25,
- PART_SUSTAIN			=26,
- PART_REVERB_DEPTH		=27,
- PART_CHORUS_DEPTH		=28
+ PART_NOTE_OFF 		    = 0,
+ PART_NOTE_ON 		    = 1,
+ PART_CONTROL_CHANGE	= 2,
+ PART_PROGRAM_CHANGE    = 3,
+ PART_PATCH 			= 4,
+ PART_KIT 			    = 5,
+ PART_COARSE_TUNE 	    = 6,
+ PART_FINE_TUNE 		= 7,
+ PART_CUTOFF 		    = 8,
+ PART_RESONANCE 		= 9,
+ PART_PORTAMENTO_TIME 	= 10,
+ PART_VIBRATO_RATE		= 11,
+ PART_VIBRATO_DEPTH		= 12,
+ PART_VIBRATO_DELAY		= 13,
+ PART_ATTACK			= 14,
+ PART_DECAY				= 15,
+ PART_RELEASE			= 16,
+ PART_DRUM_PITCH		= 17,
+ PART_DRUM_TVA			= 18,
+ PART_DRUM_PAN			= 19,
+ PART_DRUM_REVERB		= 20,
+ PART_DRUM_CHORUS		= 21,
+ PART_PAN				= 22,
+ PART_VOLUME			= 23,
+ PART_MODULATION		= 24,
+ PART_EXPRESSION		= 25,
+ PART_SUSTAIN			= 26,
+ PART_REVERB_DEPTH		= 27,
+ PART_CHORUS_DEPTH		= 28
 };
 
 #define REVERB_TYPE             29
@@ -131,6 +131,8 @@ const uint8_t CHORUS_FEEDBACK_ADDRESS[4] = {0x00, 0x40, 0x01, 0x3B};
 #define TAP_BUTTON 151
 
 const uint8_t PART_BUTTON[] = {64, 65, 66, 67, 68, 69, 70, 71};
+#define ID_MIN_PART 64
+#define ID_MAX_PART 71
 
 const uint8_t STEP_BUTTON[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7};
 const uint8_t STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
@@ -195,6 +197,10 @@ const uint8_t STEP_LED[] = {32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6,
 // input ID
 ///////////////////////////////////////////////////////////////////////////////
 #define PATCH_COUNT 316
+#define DRUM_KIT_COUNT 12
+// const uint8_t DRUM_KITS[DRUM_KIT_COUNT] = {42, 84, 96, 99, 132, 168, 195, 227, 239, 255, 255};//268, 288};
+const uint8_t DRUM_KITS[DRUM_KIT_COUNT] = {0x00, 0x08, 0x10, 0x18, 0x19, 0x20, 0x28, 0x30, 0x38, 0x40, 0x48, 0x0B};//268, 288};
+
 const uint8_t PROGRAM_BANKS[PATCH_COUNT][2] = {
   {64, 1 },          // "Synth 1" patches
   {65, 1 },
