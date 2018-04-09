@@ -84,22 +84,6 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 			portamentoTime(_val);
 			break;
 
-		case PART_DRUM_PITCH:
-			drumPitch(previous, _val);
-			break;
-		case PART_DRUM_TVA:
-			drumTVA(previous, _val);
-			break;
-		case PART_DRUM_PAN:
-			drumPan(previous, _val);
-			break;
-		case PART_DRUM_REVERB:
-			drumReverb(previous, _val);
-			break;
-		case PART_DRUM_CHORUS:
-			drumChorus(previous, _val);
-			break;
-
 		case REVERB_TYPE:
 			midiSysEx(REVERB_TYPE_ADDRESS, _val/15);
 			break;
@@ -158,6 +142,7 @@ void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
 
 void MCPart::step(int _step){
 	// do note offs
+
 	for(int i = 0; i < SLOT_COUNT; i++){
 		if(steps[currentStep][i] > 0) {
 			noteOff(steps[currentStep][i], 0);
@@ -167,6 +152,7 @@ void MCPart::step(int _step){
 	currentStep = _step;
 	for(int i = 0; i < SLOT_COUNT; i++){
 		if(steps[currentStep][i] > 0) {
+			// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
 			noteOn(steps[currentStep][i], 100);
 		}
 	}
@@ -248,22 +234,11 @@ byte MCPart::GetRolandChecksum(byte* data, int length){
 ///////////////////////////////////////////////////////////////////////////////
 
 void MCPart::setPatch(uint16_t _index){
-	patchIndex = _index;
-	// view->printf("%3i%3i", PROGRAM_BANKS[_index][0], PROGRAM_BANKS[_index][1]);
-	controlChange(00, PROGRAM_BANKS[_index][0]);
-	controlChange(32, 00);
-	programChange(PROGRAM_BANKS[_index][1]);
+
 }
 
-// void MCPart::setPatch(uint8_t _bank, uint8_t _pc){
-// 	controlChange(00, _bank);
-// 	controlChange(32, 00);
-// 	programChange(_pc);
-// }
+void MCPart::incrementPatch(int8_t _i){
 
-void MCPart::setKit(uint8_t _pc){
-	patchIndex = _pc;
-	programChange(DRUM_KITS[_pc]);
 }
 
 void MCPart::coarseTune(uint8_t _val){
@@ -380,35 +355,123 @@ void MCPart::releaseTime(uint8_t _val){
 	controlChange(06, _val);
 }
 
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
-// NRPN - drum editing
+// SynthPart
 ///////////////////////////////////////////////////////////////////////////////
 
-void MCPart::drumPitch(uint8_t _note, uint8_t _val){
+SynthPart::SynthPart(){
+}
+
+
+void SynthPart::event(uint8_t _id, uint8_t _val){
+	MCPart::event(_id, _val);
+
+}
+
+
+void SynthPart::incrementPatch(int8_t _i){
+	patchIndex += _i;
+	if(patchIndex < 0) patchIndex = PATCH_COUNT-1;
+	patchIndex %= PATCH_COUNT;
+	setPatch(patchIndex);
+}
+
+void SynthPart::setPatch(uint16_t _index){
+	patchIndex = _index;
+	view->printf("SYN%03d", patchIndex);
+	controlChange(00, PROGRAM_BANKS[_index][0]);
+	controlChange(32, 00);
+	programChange(PROGRAM_BANKS[_index][1]);
+}
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// DrumPart
+///////////////////////////////////////////////////////////////////////////////
+
+DrumPart::DrumPart(){
+
+}
+
+void DrumPart::event(uint8_t _id, uint8_t _val){
+	MCPart::event(_id, _val);
+	switch(_id){
+		case PART_DRUM_PITCH:
+			drumPitch(previous, _val);
+			break;
+		case PART_DRUM_TVA:
+			drumTVA(previous, _val);
+			break;
+		case PART_DRUM_PAN:
+			drumPan(previous, _val);
+			break;
+		case PART_DRUM_REVERB:
+			drumReverb(previous, _val);
+			break;
+		case PART_DRUM_CHORUS:
+			drumChorus(previous, _val);
+			break;
+
+		case REVERB_TYPE:
+			midiSysEx(REVERB_TYPE_ADDRESS, _val/15);
+			break;
+		case REVERB_TIME:
+			midiSysEx(REVERB_TIME_ADDRESS, _val);
+			break;
+		case REVERB_FEEDBACK:
+			midiSysEx(REVERB_FEEDBACK_ADDRESS, _val);
+			break;
+	}
+}
+
+void DrumPart::incrementPatch(int8_t _i){
+	patchIndex += _i;
+	if(patchIndex < 0) patchIndex = DRUM_KIT_COUNT-1;
+	patchIndex %= DRUM_KIT_COUNT;
+	view->printf("RTM%03d", patchIndex);
+	setPatch(patchIndex);
+}
+
+void DrumPart::setPatch(uint16_t _pc){
+	patchIndex = _pc;
+	programChange(DRUM_KITS[_pc]);
+}
+
+
+// NRPN - drum editing
+
+void DrumPart::drumPitch(uint8_t _note, uint8_t _val){
 	controlChange(99, 24);
 	controlChange(98, _note);
 	controlChange(06, _val);
 }
 
-void MCPart::drumTVA(uint8_t _note, uint8_t _val){
+void DrumPart::drumTVA(uint8_t _note, uint8_t _val){
 	controlChange(99, 26);
 	controlChange(98, _note);
 	controlChange(06, _val);
 }
 
-void MCPart::drumPan(uint8_t _note, uint8_t _val){
+void DrumPart::drumPan(uint8_t _note, uint8_t _val){
 	controlChange(99, 28);
 	controlChange(98, _note);
 	controlChange(06, _val);
 }
 
-void MCPart::drumReverb(uint8_t _note, uint8_t _val){
+void DrumPart::drumReverb(uint8_t _note, uint8_t _val){
 	controlChange(99, 29);
 	controlChange(98, _note);
 	controlChange(06, _val);
 }
 
-void MCPart::drumChorus(uint8_t _note, uint8_t _val){
+void DrumPart::drumChorus(uint8_t _note, uint8_t _val){
 	controlChange(99, 30);
 	controlChange(98, _note);
 	controlChange(06, _val);

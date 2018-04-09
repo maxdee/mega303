@@ -15,6 +15,9 @@
 class MCMode {
 	public:
 		MCMode();
+		setParts(MCPart * _part, uint8_t _index);
+		MCPart * mcParts[PART_COUNT];
+
 		virtual void begin(MCView * _view);
 		virtual void update(uint8_t _step);
 		virtual void event(uint8_t _id, uint8_t _val);
@@ -35,7 +38,6 @@ class MCMode {
 
 
 		MCInput * mcInput;
-		MCPart * mcParts;
 
 		uint8_t selectedParts;
 		// locale states that should be in most modes

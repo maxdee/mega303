@@ -7,6 +7,11 @@
 uint8_t MCMode::octave;
 uint8_t MCMode::selectRadio;
 
+MCMode::setParts(MCPart * _part, uint8_t _index){
+	mcParts[_index] = _part;
+}
+
+
 MCMode::MCMode(){
 	octave = 0;
 	functionToggle = false;
@@ -25,9 +30,9 @@ void MCMode::setInput(MCInput * _input){
 }
 
 
-void MCMode::setParts(MCPart * _mcParts){
-	mcParts = _mcParts;
-}
+// void MCMode::setParts(MCPart * _mcParts){
+// 	mcParts = _mcParts;
+// }
 
 void MCMode::event(uint8_t _id, uint8_t _val){
 	if(_val){
@@ -109,26 +114,11 @@ void MCMode::incrementPatch(int _v){
 	uint16_t _patchIndex = 0;
 	for(int i = 0; i < PART_COUNT; i++){
 		if(bitRead(selectedParts, i)){
-			_patchIndex = (&mcParts[i])->patchIndex;
 			if(_v == 1){
-				_patchIndex--;
+				mcParts[i]->incrementPatch(-1);
 			}
 			else if(_v == 2){
-				_patchIndex++;
-			}
-			if(i == 0){
-				_patchIndex %= DRUM_KIT_COUNT;
-				if(_patchIndex < 0) _patchIndex = DRUM_KIT_COUNT-1;
-				view->printf("RTM%03d", _patchIndex);
-				(&mcParts[i])->setKit(_patchIndex);
-				// (&mcParts[i])->setPatch(_patchIndex);
-
-			}
-			else {
-				if(_patchIndex < 0) _patchIndex = PATCH_COUNT-1;
-				_patchIndex %= PATCH_COUNT;
-				// view->printf("SYN%03d", _patchIndex);
-				(&mcParts[i])->setPatch(_patchIndex);
+				mcParts[i]->incrementPatch(1);
 			}
 		}
 	}
@@ -138,7 +128,7 @@ void MCMode::updateStepLEDs(){
 	// if(selectRadio == TONE_LED){
 	for(int i = 0; i < PART_COUNT; i++){
 		if(bitRead(selectedParts, i)){
-			mcInput->setStepLEDs((&mcParts[i])->stepLEDs);
+			mcInput->setStepLEDs(mcParts[i]->stepLEDs);
 		}
 	}
 	// }
@@ -153,7 +143,7 @@ void MCMode::updateStepLEDs(){
 // 	for(int i = 1; i < PART_COUNT; i++){
 // 		if(bitRead(selectedParts, i)){
 // 			// serial->println(i);
-// 			(&mcParts[i])->setPatch(patchIndex);
+// 			mcParts[i]->setPatch(patchIndex);
 // 		}
 // 	}
 // }
@@ -180,7 +170,7 @@ void MCMode::controlParts(uint8_t _id, uint8_t _val){
 		if(bitRead(selectedParts, i)){
 			// serial->println(i);
 			// view->printf("%03d%03d", _id, _val);
-			(&mcParts[i])->event(_id, _val);
+			mcParts[i]->event(_id, _val);
 		}
 	}
 }

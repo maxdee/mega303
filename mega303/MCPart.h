@@ -19,7 +19,7 @@ class MCPart {
 	public:
 		void begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan);
 
-		void event(uint8_t _id, uint8_t _val);
+		virtual void event(uint8_t _id, uint8_t _val);
 		// midi events
 		void noteOn(uint8_t _pitch, uint8_t _vel);
 		void noteOff(uint8_t _pitch, uint8_t _vel);
@@ -29,9 +29,8 @@ class MCPart {
 		byte GetRolandChecksum(byte * data, int length);
 
 		// void setPatch(uint8_t _bank, uint8_t _pc);
-		void setPatch(uint16_t _index);
-
-		void setKit(uint8_t _pc);
+		virtual void setPatch(uint16_t _index);
+		virtual void incrementPatch(int8_t _i);
 
 		void coarseTune(uint8_t _val);
 		void fineTune(uint8_t _val);
@@ -47,12 +46,6 @@ class MCPart {
 		void decayTime(uint8_t _val);
 		void releaseTime(uint8_t _val);
 
-		void drumPitch(uint8_t _note, uint8_t _val);
-		void drumTVA(uint8_t _note, uint8_t _val);
-		void drumPan(uint8_t _note, uint8_t _val);
-		void drumReverb(uint8_t _note, uint8_t _val);
-		void drumChorus(uint8_t _note, uint8_t _val);
-
 		void pan(uint8_t _val);
 		void volume(uint8_t _val);
 		void modulation(uint8_t _val);
@@ -65,11 +58,13 @@ class MCPart {
 		// void chorusType(uint8_t _val);
 		uint16_t patchIndex;
 
-		// steps
+
+
 		uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		uint8_t currentSlot;
+		// steps
 		uint16_t stepLEDs;
 		uint8_t currentStep;
-		uint8_t currentSlot;
 		uint8_t velocity;
 		//
 		void clearStep(int _step);
@@ -81,6 +76,38 @@ class MCPart {
 };
 
 
+///////////////////////////////////////////////////////////////////////////////
+// SynthPart
+///////////////////////////////////////////////////////////////////////////////
+
+class SynthPart : public MCPart {
+	public :
+		SynthPart();
+		uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		uint8_t currentSlot;
+
+		virtual void event(uint8_t _id, uint8_t _val);
+		virtual void setPatch(uint16_t _index);
+		virtual void incrementPatch(int8_t _i);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// DrumPart
+///////////////////////////////////////////////////////////////////////////////
+
+class DrumPart : public MCPart {
+		public :
+			DrumPart();
+			virtual void event(uint8_t _id, uint8_t _val);
+			virtual void setPatch(uint16_t _index);
+			virtual void incrementPatch(int8_t _i);
+
+			void drumPitch(uint8_t _note, uint8_t _val);
+			void drumTVA(uint8_t _note, uint8_t _val);
+			void drumPan(uint8_t _note, uint8_t _val);
+			void drumReverb(uint8_t _note, uint8_t _val);
+			void drumChorus(uint8_t _note, uint8_t _val);
+};
 
 
 

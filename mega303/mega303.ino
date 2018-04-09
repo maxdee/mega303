@@ -18,7 +18,16 @@ uint16_t cycleCount = 0;
 
 MCInput input;
 MCView view;
-MCPart mcParts[PART_COUNT];
+MCPart * mcParts[PART_COUNT];
+DrumPart drumPart;
+SynthPart synthPart1;
+SynthPart synthPart2;
+SynthPart synthPart3;
+SynthPart synthPart4;
+SynthPart synthPart5;
+SynthPart synthPart6;
+SynthPart synthPart7;
+
 
 #define MODE_COUNT 4
 MCMode * mode[MODE_COUNT];// = {ModeTwo(), ModeTwo(),ModeTwo()};
@@ -54,6 +63,18 @@ void setup() {
     // mcPart.releaseTime(110);
     // mcPart.portamentoTime(0);
 
+    mcParts[0] = &drumPart;
+    mcParts[1] = &synthPart1;
+    Serial.println(synthPart1.steps[0][0]);
+    mcParts[2] = &synthPart2;
+    mcParts[3] = &synthPart3;
+    mcParts[4] = &synthPart4;
+    mcParts[5] = &synthPart5;
+    mcParts[6] = &synthPart6;
+    mcParts[7] = &synthPart7;
+
+
+
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
@@ -63,10 +84,13 @@ void setup() {
     mode[2] = &modeThree;
     mode[3] = &modeThree2;
 
+
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->begin(&view);
         mode[i]->setInput(&input);
-        mode[i]->setParts(mcParts);
+        for(int i = 0; i < PART_COUNT; i++){
+            mode[i]->setParts(mcParts[i], i);
+        }
     }
 
     // mcParts[1].controlChange(0, 64);
@@ -75,7 +99,9 @@ void setup() {
 }
 
 void setupPart(uint8_t _i){
-    mcParts[_i].begin(&Serial1, &view, _i == 0 ? 9 : _i);
+    mcParts[_i]->begin(&Serial1, &view, _i == 0 ? 9 : _i);
+    view.printf("s%i c%i v%i \n", 0, _i, mcParts[_i]->steps[0][2]);
+
 }
 
 void loop() {
@@ -97,12 +123,24 @@ void timed(){
     }
     for(int i = 0; i < PART_COUNT; i++){
         if(doStep){
-            mcParts[i].step(step);
+            mcParts[i]->step(step);
+            if(mcParts[i]->steps[0][2]!=0){
+                view.printf("ss%i c%i v%i \n", 0, i, mcParts[i]->steps[0][2]);
+                mcParts[i].clearAll();
+            }
+
+            // for(int i = 0; i < 7; i++){
+            //     if(synthPart1.steps[step][i] > 0) {
+            //         Serial.printf("%i   %i\n", i, synthPart1.steps[step][i]);
+            //     }
+            // }
+
         }
         // mcParts[i].update();
     }
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->update(step);
+
     }
     doStep = false;
 }
