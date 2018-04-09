@@ -65,7 +65,6 @@ void setup() {
 
     mcParts[0] = &drumPart;
     mcParts[1] = &synthPart1;
-    Serial.println(synthPart1.steps[0][0]);
     mcParts[2] = &synthPart2;
     mcParts[3] = &synthPart3;
     mcParts[4] = &synthPart4;
@@ -78,7 +77,6 @@ void setup() {
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
-
     mode[0] = &modeOne;
     mode[1] = &modeTwo;
     mode[2] = &modeThree;
@@ -88,9 +86,9 @@ void setup() {
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->begin(&view);
         mode[i]->setInput(&input);
-        for(int i = 0; i < PART_COUNT; i++){
-            mode[i]->setParts(mcParts[i], i);
-        }
+        mode[i]->setParts(mcParts);
+        // for(int i = 0; i < PART_COUNT; i++){
+        // }
     }
 
     // mcParts[1].controlChange(0, 64);
@@ -100,15 +98,21 @@ void setup() {
 
 void setupPart(uint8_t _i){
     mcParts[_i]->begin(&Serial1, &view, _i == 0 ? 9 : _i);
-    view.printf("s%i c%i v%i \n", 0, _i, mcParts[_i]->steps[0][2]);
-
 }
 
 void loop() {
     input.update();
     timed();
+
     // Serial.println(input.checkButton(4,0));
     // snifMidiIn();
+}
+
+void debugParts(){
+    for(int i = 0; i < PART_COUNT; i++){
+
+        mcParts[i]->debug();
+    }
 }
 
 void timed(){
@@ -124,17 +128,6 @@ void timed(){
     for(int i = 0; i < PART_COUNT; i++){
         if(doStep){
             mcParts[i]->step(step);
-            if(mcParts[i]->steps[0][2]!=0){
-                view.printf("ss%i c%i v%i \n", 0, i, mcParts[i]->steps[0][2]);
-                mcParts[i].clearAll();
-            }
-
-            // for(int i = 0; i < 7; i++){
-            //     if(synthPart1.steps[step][i] > 0) {
-            //         Serial.printf("%i   %i\n", i, synthPart1.steps[step][i]);
-            //     }
-            // }
-
         }
         // mcParts[i].update();
     }

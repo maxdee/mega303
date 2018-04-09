@@ -7,11 +7,6 @@
 uint8_t MCMode::octave;
 uint8_t MCMode::selectRadio;
 
-MCMode::setParts(MCPart * _part, uint8_t _index){
-	mcParts[_index] = _part;
-}
-
-
 MCMode::MCMode(){
 	octave = 0;
 	functionToggle = false;
@@ -29,10 +24,9 @@ void MCMode::setInput(MCInput * _input){
 	mcInput = _input;
 }
 
-
-// void MCMode::setParts(MCPart * _mcParts){
-// 	mcParts = _mcParts;
-// }
+void MCMode::setParts(MCPart ** _mcParts){
+	mcParts = _mcParts;
+}
 
 void MCMode::event(uint8_t _id, uint8_t _val){
 	if(_val){

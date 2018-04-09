@@ -72,6 +72,7 @@ class MCPart {
 		void addNote(int _step, uint8_t _pitch, uint8_t _vel);
 
 		void step(int _step);
+		void debug();
 	private:
 };
 
@@ -83,8 +84,8 @@ class MCPart {
 class SynthPart : public MCPart {
 	public :
 		SynthPart();
-		uint8_t steps[STEP_COUNT][SLOT_COUNT];
-		uint8_t currentSlot;
+		// uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		// uint8_t currentSlot;
 
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void setPatch(uint16_t _index);

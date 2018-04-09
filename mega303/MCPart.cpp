@@ -10,11 +10,26 @@ void MCPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
 	view = _view;
-
-	memset(steps, 0, sizeof(steps[0][0]) * STEP_COUNT * SLOT_COUNT);
+	memset(steps, 0, sizeof(steps));// * STEP_COUNT * SLOT_COUNT);
 	velocity = 100;
 	stepLEDs = 0;
 	patchIndex = 0;
+}
+
+void MCPart::debug(){
+	bool clear = true;
+	for(int i = 0; i < 16; i++){
+		for(int j = 0; j < SLOT_COUNT; j++){
+			if(steps[i][j] != 0){
+				clear = false;
+				view->printf("s%2io%2iv%3i\n", i, j, steps[i][j]);
+			}
+		}
+	}
+	if(clear){
+		view->printf("clear %i\n", channel);
+	}
+
 }
 
 void MCPart::event(uint8_t _id, uint8_t _val){
