@@ -16,13 +16,14 @@ class MCMode {
 	public:
 		MCMode();
 		MCPart ** mcParts;
-
+		DrumPart * drumPart;
 		virtual void begin(MCView * _view);
 		virtual void update(uint8_t _step);
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual uint8_t getKey(uint8_t _key);
 		void setInput(MCInput * _input);
 		void setParts(MCPart ** _parts);
+		void MCMode::setDrumPart(DrumPart * _drums);
 		void selectMode();
 		void unSelectMode();
 		void controlParts(uint8_t _id, uint8_t _val);
@@ -39,6 +40,7 @@ class MCMode {
 		MCInput * mcInput;
 
 		uint8_t selectedParts;
+		uint8_t selectedPitch;
 		// locale states that should be in most modes
 		bool functionToggle;
 		bool recordToggle;
@@ -70,13 +72,18 @@ class MCMode {
 
 };
 
-
+enum DrumEditModes {
+	STEP_REC,
+	PATTERN_EDIT
+};
 class ModeOne : public MCMode {
 	public :
 		ModeOne();
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void update(uint8_t _step);
 		virtual void knobBanks(uint8_t _id, uint8_t _val);
+		uint8_t drumEditMode;
+
 };
 
 class ModeTwo : public MCMode {

@@ -10,25 +10,13 @@ void MCPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 	channel = _chan;
 	serial = _serial;
 	view = _view;
-	memset(steps, 0, sizeof(steps));// * STEP_COUNT * SLOT_COUNT);
 	velocity = 100;
 	stepLEDs = 0;
 	patchIndex = 0;
 }
 
 void MCPart::debug(){
-	bool clear = true;
-	for(int i = 0; i < 16; i++){
-		for(int j = 0; j < SLOT_COUNT; j++){
-			if(steps[i][j] != 0){
-				clear = false;
-				view->printf("s%2io%2iv%3i\n", i, j, steps[i][j]);
-			}
-		}
-	}
-	if(clear){
-		view->printf("clear %i\n", channel);
-	}
+
 
 }
 
@@ -40,15 +28,15 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 		case PART_NOTE_OFF:
 			noteOff(_val, velocity);
 			break;
-		case PART_ADD_NOTE:
-			addNote(currentStep, _val, velocity);
-			break;
-		case PART_CLEAR_ALL:
-			clearAll();
-			break;
-		case PART_CLEAR_STEP:
-			clearStep(_val);
-			break;
+		// case PART_ADD_NOTE:
+		// 	addNote(currentStep, _val, velocity);
+		// 	break;
+		// case PART_CLEAR_ALL:
+		// 	clearAll();
+		// 	break;
+		// case PART_CLEAR_STEP:
+		// 	clearStep(_val);
+		// 	break;
 		case PART_CUTOFF:
 			cutoff(_val);
 			break;
@@ -128,49 +116,48 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 	}
 }
 
-void MCPart::clearStep(int _step){
-	for(int i = 0; i < SLOT_COUNT; i++){
-		noteOff(steps[_step][i], 0);
-		steps[_step][i] = 0;
-		bitClear(stepLEDs, _step);
-	}
-}
-
-void MCPart::clearAll(){
-	for(int i = 0; i < STEP_COUNT; i++){
-		clearStep(i);
-	}
-}
-
-void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
-	// currentSlot = 0;
-	previous = _pitch;
-	if(steps[_step][currentSlot] > 0) noteOff(steps[_step][currentSlot], 0);
-	// check for empty slot?
-	steps[_step][currentSlot] = _pitch;
-	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch; //  adds a note off
-	bitClear(stepLEDs, _step);
-	bitSet(stepLEDs, _step);
-	currentSlot++;
-	currentSlot %= SLOT_COUNT;
-}
+// void MCPart::clearStep(int _step){
+// 	for(int i = 0; i < SLOT_COUNT; i++){
+// 		noteOff(steps[_step][i], 0);
+// 		steps[_step][i] = 0;
+// 		bitClear(stepLEDs, _step);
+// 	}
+// }
+//
+// void MCPart::clearAll(){
+// 	for(int i = 0; i < STEP_COUNT; i++){
+// 		clearStep(i);
+// 	}
+// }
+//
+// void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
+// 	// currentSlot = 0;
+// 	previous = _pitch;
+// 	if(steps[_step][currentSlot] > 0) noteOff(steps[_step][currentSlot], 0);
+// 	// check for empty slot?
+// 	steps[_step][currentSlot] = _pitch;
+// 	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch; //  adds a note off
+// 	bitClear(stepLEDs, _step);
+// 	bitSet(stepLEDs, _step);
+// 	currentSlot++;
+// 	currentSlot %= SLOT_COUNT;
+// }
 
 void MCPart::step(int _step){
 	// do note offs
-
-	for(int i = 0; i < SLOT_COUNT; i++){
-		if(steps[currentStep][i] > 0) {
-			noteOff(steps[currentStep][i], 0);
-		}
-	}
-	// do note on!
-	currentStep = _step;
-	for(int i = 0; i < SLOT_COUNT; i++){
-		if(steps[currentStep][i] > 0) {
-			// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
-			noteOn(steps[currentStep][i], 100);
-		}
-	}
+	// for(int i = 0; i < SLOT_COUNT; i++){
+	// 	if(steps[currentStep][i] > 0) {
+	// 		noteOff(steps[currentStep][i], 0);
+	// 	}
+	// }
+	// // do note on!
+	// currentStep = _step;
+	// for(int i = 0; i < SLOT_COUNT; i++){
+	// 	if(steps[currentStep][i] > 0) {
+	// 		// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
+	// 		noteOn(steps[currentStep][i], 100);
+	// 	}
+	// }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -380,6 +367,43 @@ void MCPart::releaseTime(uint8_t _val){
 SynthPart::SynthPart(){
 }
 
+void SynthPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
+	MCPart::begin(_serial, _view, _chan);
+	memset(steps, 0, sizeof(steps));// * STEP_COUNT * SLOT_COUNT);
+}
+
+void SynthPart::step(int _step){
+	// do note offs
+	for(int i = 0; i < SLOT_COUNT; i++){
+		if(steps[currentStep][i] > 0) {
+			noteOff(steps[currentStep][i], 0);
+		}
+	}
+	// do note on!
+	currentStep = _step;
+	for(int i = 0; i < SLOT_COUNT; i++){
+		if(steps[currentStep][i] > 0) {
+			// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
+			noteOn(steps[currentStep][i], 100);
+		}
+	}
+}
+
+void SynthPart::debug(){
+	bool clear = true;
+	for(int i = 0; i < 16; i++){
+		for(int j = 0; j < SLOT_COUNT; j++){
+			if(steps[i][j] != 0){
+				clear = false;
+				view->printf("s%2io%2iv%3i\n", i, j, steps[i][j]);
+			}
+		}
+	}
+	if(clear){
+		view->printf("clear %i\n", channel);
+	}
+
+}
 
 void SynthPart::event(uint8_t _id, uint8_t _val){
 	MCPart::event(_id, _val);
@@ -412,26 +436,26 @@ void SynthPart::setPatch(uint16_t _index){
 ///////////////////////////////////////////////////////////////////////////////
 
 DrumPart::DrumPart(){
-
+	memset(patterns, 0, sizeof(patterns));
 }
 
 void DrumPart::event(uint8_t _id, uint8_t _val){
 	MCPart::event(_id, _val);
 	switch(_id){
 		case PART_DRUM_PITCH:
-			drumPitch(previous, _val);
+			drumPitch(selectedPitch, _val);
 			break;
 		case PART_DRUM_TVA:
-			drumTVA(previous, _val);
+			drumTVA(selectedPitch, _val);
 			break;
 		case PART_DRUM_PAN:
-			drumPan(previous, _val);
+			drumPan(selectedPitch, _val);
 			break;
 		case PART_DRUM_REVERB:
-			drumReverb(previous, _val);
+			drumReverb(selectedPitch, _val);
 			break;
 		case PART_DRUM_CHORUS:
-			drumChorus(previous, _val);
+			drumChorus(selectedPitch, _val);
 			break;
 
 		case REVERB_TYPE:
@@ -443,6 +467,22 @@ void DrumPart::event(uint8_t _id, uint8_t _val){
 		case REVERB_FEEDBACK:
 			midiSysEx(REVERB_FEEDBACK_ADDRESS, _val);
 			break;
+	}
+}
+
+void DrumPart::selectPitch(uint8_t _pitch){
+	selectedPitch = _pitch;
+}
+
+void DrumPart::step(int _step){
+	for(int i = 0; i < 127; i++){
+		if(patterns[i] != 0){
+			for(int j = 0; j < 16; j++){
+				if(bitRead(patterns[i], j)){
+					noteOn(i, velocity);
+				}
+			}
+		}
 	}
 }
 
@@ -459,6 +499,10 @@ void DrumPart::setPatch(uint16_t _pc){
 	programChange(DRUM_KITS[_pc]);
 }
 
+
+void DrumPart::debug(){
+	view->println(patterns[selectedPitch], BIN);
+}
 
 // NRPN - drum editing
 

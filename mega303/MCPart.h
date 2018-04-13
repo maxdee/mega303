@@ -17,7 +17,7 @@ class MCPart {
 		MCView * view;
 
 	public:
-		void begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan);
+		virtual void begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan);
 
 		virtual void event(uint8_t _id, uint8_t _val);
 		// midi events
@@ -60,19 +60,19 @@ class MCPart {
 
 
 
-		uint8_t steps[STEP_COUNT][SLOT_COUNT];
-		uint8_t currentSlot;
+		uint8_t selectedPitch;
+
 		// steps
 		uint16_t stepLEDs;
 		uint8_t currentStep;
 		uint8_t velocity;
 		//
-		void clearStep(int _step);
-		void clearAll();
-		void addNote(int _step, uint8_t _pitch, uint8_t _vel);
+		// void clearStep(int _step);
+		// void clearAll();
+		// void addNote(int _step, uint8_t _pitch, uint8_t _vel);
 
-		void step(int _step);
-		void debug();
+		virtual void step(int _step);
+		virtual void debug();
 	private:
 };
 
@@ -84,12 +84,18 @@ class MCPart {
 class SynthPart : public MCPart {
 	public :
 		SynthPart();
+		virtual void begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan);
+		virtual void step(int _step);
 		// uint8_t steps[STEP_COUNT][SLOT_COUNT];
 		// uint8_t currentSlot;
 
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual void setPatch(uint16_t _index);
 		virtual void incrementPatch(int8_t _i);
+		virtual void debug();
+
+		uint8_t steps[STEP_COUNT][SLOT_COUNT];
+		uint8_t currentSlot;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,9 +105,16 @@ class SynthPart : public MCPart {
 class DrumPart : public MCPart {
 		public :
 			DrumPart();
+			virtual void step(int _step);
 			virtual void event(uint8_t _id, uint8_t _val);
 			virtual void setPatch(uint16_t _index);
 			virtual void incrementPatch(int8_t _i);
+			virtual void debug();
+
+			uint32_t patterns[127];
+
+			void selectPitch(uint8_t _pitch);
+
 
 			void drumPitch(uint8_t _note, uint8_t _val);
 			void drumTVA(uint8_t _note, uint8_t _val);

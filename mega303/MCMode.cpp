@@ -28,6 +28,10 @@ void MCMode::setParts(MCPart ** _mcParts){
 	mcParts = _mcParts;
 }
 
+void MCMode::setDrumPart(DrumPart * _drums){
+	drumPart = _drums
+}
+
 void MCMode::event(uint8_t _id, uint8_t _val){
 	if(_val){
 		// check for part selection
@@ -204,36 +208,66 @@ void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
 }
 
 void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
+
 	int _key = getKey(_id);
 	if(_key > 0){
-		// view->printf("%3i%3i", _id, _val);
-		if(_val == 1) {
-			// controlParts(PART_ADD_NOTE, _id);
-			if(mcInput->checkButton(SHIFT_BUTTON) && _key != 0){
-				controlParts(PART_CLEAR_STEP, _id-128);
-				updateStepLEDs();
-			}
-			else if(functionToggle){
-				if(!recordToggle){
-					controlParts(PART_NOTE_ON, _key);
-					selectedKey = _key;
-				}
-				else {
-					controlParts(PART_ADD_NOTE, selectedKey);
-					updateStepLEDs();
-				}
+		if(!recordToggle){
+			if(_val == 1) {
+				view->printf("P-E%3i", _key);
+				drumPart->selectedPitch = _key;
+				selectedPitch = _key;
+
+				uint16_t _pat = drumPart->patterns[selectedPitch];
+				mcInput->setStepLEDs(_pat);
+
+				controlParts(PART_NOTE_ON, _key);
+
 			}
 			else {
-				controlParts(PART_NOTE_ON, _key);
-				if(recordToggle) {
-					controlParts(PART_ADD_NOTE, _key);
-					updateStepLEDs();
+				controlParts(PART_NOTE_OFF, _key);
+			}
+		}
+		else {
+			if(_val == 1) {
+				if(_id >= 127 || _id <= 143){
+					uint16_t _pat = drumPart->patterns[selectedPitch];
+					bitWrite(_pat, _id-127, bitRead(_pat, _id-127));
+					drumPart->patterns[selectedPitch] = _pat;
+					mcInput->setStepLEDs(_pat);
+
 				}
 			}
 		}
-		else controlParts(PART_NOTE_OFF, _key);
 	}
-	else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
+	//
+	// 	// view->printf("%3i%3i", _id, _val);
+	// 	if(_val == 1) {
+	// 		// controlParts(PART_ADD_NOTE, _id);
+	// 		if(mcInput->checkButton(SHIFT_BUTTON) && _key != 0){
+	// 			controlParts(PART_CLEAR_STEP, _id-128);
+	// 			updateStepLEDs();
+	// 		}
+	// 		else if(functionToggle){
+	// 			if(!recordToggle){
+	// 				controlParts(PART_NOTE_ON, _key);
+	// 				selectedKey = _key;
+	// 			}
+	// 			else {
+	// 				controlParts(PART_ADD_NOTE, selectedKey);
+	// 				updateStepLEDs();
+	// 			}
+	// 		}
+	// 		else {
+	// 			controlParts(PART_NOTE_ON, _key);
+	// 			if(recordToggle) {
+	// 				controlParts(PART_ADD_NOTE, _key);
+	// 				updateStepLEDs();
+	// 			}
+	// 		}
+	// 	}
+	// 	else controlParts(PART_NOTE_OFF, _key);
+	// }
+	// else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -242,6 +276,7 @@ void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 ////////////////////////////////////////////////////////////////
 
 ModeOne::ModeOne(){
+	drumEditMode = PATTERN_EDIT;
 }
 
 void ModeOne::update(uint8_t _step){
@@ -252,6 +287,12 @@ void ModeOne::event(uint8_t _id, uint8_t _val){
 	MCMode::event(_id, _val);
 	// view->printf("%03d%03d", _id, _val);
 
+	if(_id == ENTER_BUTTON){
+		drumEditMode = STEP_REC;
+	}
+	else if(_id == EXIT_BUTTON){
+		drumEditMode = PATTERN_EDIT;
+	}
 	if(selectedParts == 1){
 		drumSequenceEdit(_id, _val);
 	}

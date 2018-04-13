@@ -72,8 +72,6 @@ void setup() {
     mcParts[6] = &synthPart6;
     mcParts[7] = &synthPart7;
 
-
-
     for(int i = 0; i < PART_COUNT; i++){
         setupPart(i);
     }
@@ -87,10 +85,11 @@ void setup() {
         mode[i]->begin(&view);
         mode[i]->setInput(&input);
         mode[i]->setParts(mcParts);
+        mode[i]->setDrumPart(&drumPart);
         // for(int i = 0; i < PART_COUNT; i++){
         // }
     }
-
+    delay(1000);
     // mcParts[1].controlChange(0, 64);
     // mcParts[1].controlChange(32, 0);
     // mcParts[1].programChange(15);
