@@ -40,7 +40,7 @@ int modeIndex;
 
 
 bool doStep;
-int rate = 28;
+int rate = 20;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
@@ -89,7 +89,7 @@ void setup() {
         // for(int i = 0; i < PART_COUNT; i++){
         // }
     }
-    delay(1000);
+
     // mcParts[1].controlChange(0, 64);
     // mcParts[1].controlChange(32, 0);
     // mcParts[1].programChange(15);

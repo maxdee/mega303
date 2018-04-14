@@ -23,7 +23,7 @@ class MCMode {
 		virtual uint8_t getKey(uint8_t _key);
 		void setInput(MCInput * _input);
 		void setParts(MCPart ** _parts);
-		void MCMode::setDrumPart(DrumPart * _drums);
+		void setDrumPart(DrumPart * _drums);
 		void selectMode();
 		void unSelectMode();
 		void controlParts(uint8_t _id, uint8_t _val);

@@ -29,7 +29,7 @@ void MCMode::setParts(MCPart ** _mcParts){
 }
 
 void MCMode::setDrumPart(DrumPart * _drums){
-	drumPart = _drums
+	drumPart = _drums;
 }
 
 void MCMode::event(uint8_t _id, uint8_t _val){
@@ -229,12 +229,12 @@ void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 		}
 		else {
 			if(_val == 1) {
+
 				if(_id >= 127 || _id <= 143){
 					uint16_t _pat = drumPart->patterns[selectedPitch];
-					bitWrite(_pat, _id-127, bitRead(_pat, _id-127));
+					bitWrite(_pat, _id-128, !bitRead(_pat, _id-128));
 					drumPart->patterns[selectedPitch] = _pat;
 					mcInput->setStepLEDs(_pat);
-
 				}
 			}
 		}

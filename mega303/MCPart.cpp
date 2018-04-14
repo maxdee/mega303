@@ -477,10 +477,8 @@ void DrumPart::selectPitch(uint8_t _pitch){
 void DrumPart::step(int _step){
 	for(int i = 0; i < 127; i++){
 		if(patterns[i] != 0){
-			for(int j = 0; j < 16; j++){
-				if(bitRead(patterns[i], j)){
-					noteOn(i, velocity);
-				}
+			if(bitRead(patterns[i], _step)){
+				noteOn(i, velocity);
 			}
 		}
 	}
