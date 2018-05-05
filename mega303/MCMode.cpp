@@ -419,6 +419,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 				controlParts(CHORUS_FEEDBACK, _val);
 				break;
 			case POT_4:
+				controlParts(PART_PORTAMENTO_TIME, _val);
 				break;
 			case POT_5:
 				break;
