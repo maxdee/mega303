@@ -11,6 +11,7 @@ MCMode::MCMode(){
 	octave = 0;
 	functionToggle = false;
 	recordToggle = false;
+	pressedKeys = 0;
 }
 
 void MCMode::begin(MCView * _view){
@@ -32,19 +33,30 @@ void MCMode::setDrumPart(DrumPart * _drums){
 	drumPart = _drums;
 }
 
+void MCMode::partSelecting(uint8_t _id){
+	int tmp = _id - ID_MIN_PART;
+	if(partSelectToggle){
+		selectedParts ^= 1 << tmp;
+		mcInput->setPartSelectLEDs(selectedParts);
+	}
+	else if(partMuteToggle){
+		mutedParts ^= 1 << tmp;
+		mcInput->setPartSelectLEDs(mutedParts);
+		for(int i = 0; i < 8; i++){
+			mcParts[i]->event(PART_MUTE, bitRead(mutedParts, i));
+		}
+	}
+	else if(rhythmMuteToggle){
+		rhythmMute ^= 1 << tmp;
+		mcInput->setPartSelectLEDs(rhythmMute);
+	}
+}
+
 void MCMode::event(uint8_t _id, uint8_t _val){
 	if(_val){
 		// check for part selection
 		if(_id >= ID_MIN_PART && _id <= ID_MAX_PART){
-			int tmp = _id - ID_MIN_PART;
-			if(bitRead(selectedParts, tmp)){
-				bitClear(selectedParts, tmp);
-			}
-			else {
-				bitSet(selectedParts, tmp);
-				updateStepLEDs();
-			}
-			mcInput->setLED(_id, bitRead(selectedParts, tmp));
+			partSelecting(_id);
 		}
 		// knob bank selection
 		else if(_id == FWD_BUTTON || _id == BWD_BUTTON){
@@ -92,17 +104,46 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 					mcInput->setLED(REC_LED, recordToggle);
 					break;
 				case SELECT_PART_BUTTON:
-					partSelectToggle = !partSelectToggle;
+					partSelectToggle = true;
+					mcInput->setPartSelectLEDs(selectedParts);
+
+					partMuteToggle = false;
+					rhythmMuteToggle = false;
 					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
-					break;
-				case MUTE_PART_BUTTON:
-					partMuteToggle = !partMuteToggle;
 					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
-					break;
-				case RHYTHM_MUTE_BUTTON:
-					rhythmMuteToggle = !rhythmMuteToggle;
 					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
 					break;
+				case MUTE_PART_BUTTON:
+					partSelectToggle = false;
+					partMuteToggle = true;
+					mcInput->setPartSelectLEDs(mutedParts);
+
+					rhythmMuteToggle = false;
+					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
+					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
+					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+					break;
+				case RHYTHM_MUTE_BUTTON:
+					partSelectToggle = false;
+					partMuteToggle = false;
+					rhythmMuteToggle = true;
+					mcInput->setPartSelectLEDs(rhythmMute);
+					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
+					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
+					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+					break;
+				// case SELECT_PART_BUTTON:
+				// 	partSelectToggle = !partSelectToggle;
+				// 	mcInput->setLED(SELECT_PART_LED, partSelectToggle);
+				// 	break;
+				// case MUTE_PART_BUTTON:
+				// 	partMuteToggle = !partMuteToggle;
+				// 	mcInput->setLED(MUTE_PART_LED, partMuteToggle);
+				// 	break;
+				// case RHYTHM_MUTE_BUTTON:
+				// 	rhythmMuteToggle = !rhythmMuteToggle;
+				// 	mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+				// 	break;
 			}
 		}
 	}
@@ -122,15 +163,6 @@ void MCMode::incrementPatch(int _v){
 	}
 }
 
-void MCMode::updateStepLEDs(){
-	// if(selectRadio == TONE_LED){
-	for(int i = 0; i < PART_COUNT; i++){
-		if(bitRead(selectedParts, i)){
-			mcInput->setStepLEDs(mcParts[i]->stepLEDs);
-		}
-	}
-	// }
-}
 
 // void MCMode::incrementTempo(int _v){
 // 	patchIndex += _v;
@@ -153,6 +185,15 @@ uint8_t MCMode::getKey(uint8_t _key){
 
 void MCMode::update(uint8_t _step){
 	currentStep = _step;
+	for(int i = 0; i < 16; i++){
+		if(bitRead(pressedKeys, i)){
+			for(int i = 0; i < PART_COUNT; i++){
+				if(bitRead(selectedParts, i)){
+					bitWrite(mcParts[i]->patterns[i + octave * 8], _step, 1);
+				}
+			}
+		}
+	}
 }
 
 void MCMode::unSelectMode(){
@@ -179,36 +220,58 @@ void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
 	if(_key > 0){
 		// view->printf("%3i%3i", _id, _val);
 		if(_val == 1) {
-			// controlParts(PART_ADD_NOTE, _id);
-			if(mcInput->checkButton(SHIFT_BUTTON) && _key != 0){
-				controlParts(PART_CLEAR_STEP, _id-128);
-				updateStepLEDs();
-			}
-			else if(functionToggle){
-				if(!recordToggle){
-					controlParts(PART_NOTE_ON, _key);
-					selectedKey = _key;
-				}
-				else {
-					controlParts(PART_ADD_NOTE, selectedKey);
-					updateStepLEDs();
-				}
-			}
-			else {
-				controlParts(PART_NOTE_ON, _key);
-				if(recordToggle) {
-					controlParts(PART_ADD_NOTE, _key);
-					updateStepLEDs();
-				}
+			controlParts(PART_NOTE_ON, _key);
+			if(recordToggle){
+				bitWrite(pressedKeys, _id-127, 1);
+				partToggleStepPitch(currentStep, _key, 1);
+				//
+				// for(int i = 0; i < PART_COUNT; i++){
+				// 	if(bitRead(selectedParts, i)){
+				// 		bitWrite(mcParts[i]->patterns[_key], currentStep, 1);
+				// 	}
+				// }
 			}
 		}
-		else controlParts(PART_NOTE_OFF, _key);
+		else {
+			controlParts(PART_NOTE_OFF, _key);
+			if(recordToggle){
+				bitWrite(pressedKeys, _id-127, 0);
+				partToggleStepPitch(currentStep, _key, 0);
+				// for(int i = 0; i < PART_COUNT; i++){
+				// 	if(bitRead(selectedParts, i)){
+				// 	}
+				// }
+			}
+		}
 	}
-	else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
+	else if(_id == TRANSPOSE_BUTTON) {
+		for(int i = 0; i < PART_COUNT; i++){
+			if(bitRead(selectedParts, i)){
+				// do note off
+				for(int j = 0; j < 127; j++){
+					for(int k = 0; k < 16; k++){
+						if(bitRead(mcParts[i]->patterns[j], k)){
+							mcParts[i]->noteOff(i,100);
+						}
+					}
+				}
+				memset(mcParts[i]->patterns, 0, sizeof(mcParts[i]->patterns));
+			}
+		}
+	}
 }
 
-void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 
+void MCMode::partToggleStepPitch(uint8_t _step, uint8_t _pitch, uint8_t _state){
+	for(int i = 0; i < PART_COUNT; i++){
+		if(bitRead(selectedParts, i)){
+			bitWrite(mcParts[i]->patterns[_pitch], _step, _state);
+		}
+	}
+}
+
+
+void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 	int _key = getKey(_id);
 	if(_key > 0){
 		if(!recordToggle){
@@ -239,35 +302,12 @@ void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 			}
 		}
 	}
-	//
-	// 	// view->printf("%3i%3i", _id, _val);
-	// 	if(_val == 1) {
-	// 		// controlParts(PART_ADD_NOTE, _id);
-	// 		if(mcInput->checkButton(SHIFT_BUTTON) && _key != 0){
-	// 			controlParts(PART_CLEAR_STEP, _id-128);
-	// 			updateStepLEDs();
-	// 		}
-	// 		else if(functionToggle){
-	// 			if(!recordToggle){
-	// 				controlParts(PART_NOTE_ON, _key);
-	// 				selectedKey = _key;
-	// 			}
-	// 			else {
-	// 				controlParts(PART_ADD_NOTE, selectedKey);
-	// 				updateStepLEDs();
-	// 			}
-	// 		}
-	// 		else {
-	// 			controlParts(PART_NOTE_ON, _key);
-	// 			if(recordToggle) {
-	// 				controlParts(PART_ADD_NOTE, _key);
-	// 				updateStepLEDs();
-	// 			}
-	// 		}
-	// 	}
-	// 	else controlParts(PART_NOTE_OFF, _key);
-	// }
-	// else if(_id == TRANSPOSE_BUTTON) controlParts(PART_CLEAR_ALL, 0);
+	else if(_id == TRANSPOSE_BUTTON) {
+		memset(drumPart->patterns, 0, sizeof(drumPart->patterns));
+		// if(){
+		//
+		// }
+	}
 }
 
 ////////////////////////////////////////////////////////////////

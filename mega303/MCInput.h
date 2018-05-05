@@ -12,7 +12,8 @@ class MCInput {
 		MCInput();
 		void update();
 		void setLED(uint8_t _index, uint8_t _state);
-		void setStepLEDs(uint16_t);
+		void setStepLEDs(uint16_t _v);
+		void setPartSelectLEDs(uint8_t);
 		bool checkButton(uint8_t _id);
 		// bool checkButton(uint8_t _row, uint8_t _col);
 
@@ -70,7 +71,7 @@ class MCInput {
 		uint8_t step;
 
 		// rows
-		byte rowBytes[16] = {
+		uint8_t rowBytes[16] = {
 			B00000000, // 000 aka 0
 			B00000010, // 100 aka 1
 			B00000100, // 010 aka 2
@@ -92,11 +93,11 @@ class MCInput {
 		// next circuit version will use port manipulation...
 
 		// LED column states
-		byte buttonBuffer[16];
-		byte buttonStates[16];
+		uint8_t buttonBuffer[16];
+		uint8_t buttonStates[16];
 
 	public:
-		byte LEDStates[16];
+		uint8_t LEDStates[16];
 
 };
 

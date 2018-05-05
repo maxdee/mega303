@@ -106,6 +106,13 @@ void MCInput::setStepLEDs(uint16_t _step){
 	}
 }
 
+void MCInput::setPartSelectLEDs(uint8_t _v){
+	for(uint8_t i = 0; i < 8; i++){
+		setLED(i+ID_MIN_PART, bitRead(_v, i));
+	}
+}
+
+
 bool MCInput::checkButton(uint8_t _id){
 	return bitRead(buttonBuffer[_id / COL_COUNT], _id % COL_COUNT);
 }
@@ -161,8 +168,6 @@ void MCInput::pushDigit(char _c){
 		}
 		LEDStates[segmentRows[5]] = ~FONT_DEFAULT[_c-32];
 	}
-
-
 }
 
 void MCInput::displayBytes(byte _bytes[]){

@@ -30,54 +30,53 @@
 // Parameters
 ///////////////////////////////////////////////////////////////////////////////
 enum PartStuff{
- PART_NOTE_OFF 		    = 0,
- PART_NOTE_ON 		    = 1,
- PART_CONTROL_CHANGE	= 2,
- PART_PROGRAM_CHANGE    = 3,
- PART_PATCH 			= 4,
- PART_KIT 			    = 5,
- PART_COARSE_TUNE 	    = 6,
- PART_FINE_TUNE 		= 7,
- PART_CUTOFF 		    = 8,
- PART_RESONANCE 		= 9,
- PART_PORTAMENTO_TIME 	= 10,
- PART_VIBRATO_RATE		= 11,
- PART_VIBRATO_DEPTH		= 12,
- PART_VIBRATO_DELAY		= 13,
- PART_ATTACK			= 14,
- PART_DECAY				= 15,
- PART_RELEASE			= 16,
- PART_DRUM_PITCH		= 17,
- PART_DRUM_TVA			= 18,
- PART_DRUM_PAN			= 19,
- PART_DRUM_REVERB		= 20,
- PART_DRUM_CHORUS		= 21,
- PART_PAN				= 22,
- PART_VOLUME			= 23,
- PART_MODULATION		= 24,
- PART_EXPRESSION		= 25,
- PART_SUSTAIN			= 26,
- PART_REVERB_DEPTH		= 27,
- PART_CHORUS_DEPTH		= 28
+ PART_NOTE_OFF,
+ PART_NOTE_ON,
+ PART_CONTROL_CHANGE,
+ PART_PROGRAM_CHANGE,
+ PART_PATCH,
+ PART_KIT,
+ PART_COARSE_TUNE,
+ PART_FINE_TUNE,
+ PART_CUTOFF,
+ PART_RESONANCE,
+ PART_PORTAMENTO_TIME,
+ PART_VIBRATO_RATE,
+ PART_VIBRATO_DEPTH,
+ PART_VIBRATO_DELAY,
+ PART_ATTACK,
+ PART_DECAY,
+ PART_RELEASE,
+ PART_DRUM_PITCH,
+ PART_DRUM_TVA,
+ PART_DRUM_PAN,
+ PART_DRUM_REVERB,
+ PART_DRUM_CHORUS,
+ PART_PAN,
+ PART_VOLUME,
+ PART_MODULATION,
+ PART_EXPRESSION,
+ PART_SUSTAIN,
+ PART_REVERB_DEPTH,
+ PART_CHORUS_DEPTH,
+ PART_MUTE,
+
+ REVERB_TYPE,
+ REVERB_TIME,
+ REVERB_FEEDBACK,
+ CHORUS_TYPE,
+ CHORUS_RATE,
+ CHORUS_FEEDBACK,
+ PART_ADD_NOTE,
+ PART_CLEAR_STEP,
+ PART_CLEAR_ALL
 };
 
-#define REVERB_TYPE             29
-#define REVERB_TIME             30
-#define REVERB_FEEDBACK         31
 
-
-#define CHORUS_TYPE             32
-#define CHORUS_RATE             33
-#define CHORUS_FEEDBACK         34
-
-
-#define PART_ADD_NOTE 			35
-#define PART_CLEAR_STEP			36
-#define PART_CLEAR_ALL 			37
 ///////////////////////////////////////////////////////////////////////////////
 // sysex
 ///////////////////////////////////////////////////////////////////////////////
-const uint8_t REVERB_TYPE_ADDRESS[4] = {0x00, 0x40, 0x01, 0x30};
+const uint8_t REVERB_TYPE_ADDRESS[4] {0x00, 0x40, 0x01, 0x30};
 const uint8_t REVERB_TIME_ADDRESS[4] = {0x00, 0x40, 0x01, 0x34};
 const uint8_t REVERB_FEEDBACK_ADDRESS[4] = {0x00, 0x40, 0x01, 0x35};
 

@@ -30,7 +30,7 @@ class MCMode {
 		void updateStepLEDs();
 		void keyEvent(uint8_t _key);
 		void knobBanks(uint8_t _id, uint8_t _val);
-
+		void partSelecting(uint8_t _id);
 
 		void incrementPatch(int _v);
 		void drumSequenceEdit(uint8_t _id, uint8_t _val);
@@ -40,6 +40,9 @@ class MCMode {
 		MCInput * mcInput;
 
 		uint8_t selectedParts;
+		uint8_t mutedParts;
+		uint8_t rhythmMute;
+
 		uint8_t selectedPitch;
 		// locale states that should be in most modes
 		bool functionToggle;
@@ -56,7 +59,8 @@ class MCMode {
 		uint8_t currentStep;
 		uint8_t knobBank;
 		uint8_t selectedKey;
-
+		uint16_t pressedKeys;
+		void partToggleStepPitch(uint8_t _step, uint8_t _pitch, uint8_t _state);
 	private:
 		uint8_t localLEDState[16];
 		// uint8_t buttons[256]; // to then deal with buttons[PLAY_BUTTON] == 1;

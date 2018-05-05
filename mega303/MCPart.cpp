@@ -11,8 +11,9 @@ void MCPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 	serial = _serial;
 	view = _view;
 	velocity = 100;
-	stepLEDs = 0;
+	// stepLEDs = 0;
 	patchIndex = 0;
+	mute = false;
 }
 
 void MCPart::debug(){
@@ -87,6 +88,10 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 			portamentoTime(_val);
 			break;
 
+		case PART_MUTE:
+			mute = _val != 0;
+			break;
+
 		case REVERB_TYPE:
 			midiSysEx(REVERB_TYPE_ADDRESS, _val/15);
 			break;
@@ -116,48 +121,9 @@ void MCPart::event(uint8_t _id, uint8_t _val){
 	}
 }
 
-// void MCPart::clearStep(int _step){
-// 	for(int i = 0; i < SLOT_COUNT; i++){
-// 		noteOff(steps[_step][i], 0);
-// 		steps[_step][i] = 0;
-// 		bitClear(stepLEDs, _step);
-// 	}
-// }
-//
-// void MCPart::clearAll(){
-// 	for(int i = 0; i < STEP_COUNT; i++){
-// 		clearStep(i);
-// 	}
-// }
-//
-// void MCPart::addNote(int _step, uint8_t _pitch, uint8_t _vel){
-// 	// currentSlot = 0;
-// 	previous = _pitch;
-// 	if(steps[_step][currentSlot] > 0) noteOff(steps[_step][currentSlot], 0);
-// 	// check for empty slot?
-// 	steps[_step][currentSlot] = _pitch;
-// 	steps[(_step+1) % STEP_COUNT][currentSlot] = 128 + _pitch; //  adds a note off
-// 	bitClear(stepLEDs, _step);
-// 	bitSet(stepLEDs, _step);
-// 	currentSlot++;
-// 	currentSlot %= SLOT_COUNT;
-// }
 
 void MCPart::step(int _step){
-	// do note offs
-	// for(int i = 0; i < SLOT_COUNT; i++){
-	// 	if(steps[currentStep][i] > 0) {
-	// 		noteOff(steps[currentStep][i], 0);
-	// 	}
-	// }
-	// // do note on!
-	// currentStep = _step;
-	// for(int i = 0; i < SLOT_COUNT; i++){
-	// 	if(steps[currentStep][i] > 0) {
-	// 		// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
-	// 		noteOn(steps[currentStep][i], 100);
-	// 	}
-	// }
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -369,39 +335,26 @@ SynthPart::SynthPart(){
 
 void SynthPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 	MCPart::begin(_serial, _view, _chan);
-	memset(steps, 0, sizeof(steps));// * STEP_COUNT * SLOT_COUNT);
+	memset(patterns, 0, sizeof(patterns));
 }
 
 void SynthPart::step(int _step){
-	// do note offs
-	for(int i = 0; i < SLOT_COUNT; i++){
-		if(steps[currentStep][i] > 0) {
-			noteOff(steps[currentStep][i], 0);
-		}
-	}
-	// do note on!
 	currentStep = _step;
-	for(int i = 0; i < SLOT_COUNT; i++){
-		if(steps[currentStep][i] > 0) {
-			// view->printf("s%i c%i v%i \n", _step, channel, steps[currentStep][i]);
-			noteOn(steps[currentStep][i], 100);
+	int _prev = _step-1;
+	if(_prev < 0) _prev = 15; // STEP_COUNT??
+	for(int i = 0; i < 127; i++){
+		if( bitRead(patterns[i], _step) == 1){
+			if(bitRead(patterns[i], _prev) == 0){
+				if(!mute) noteOn(i, 100);
+			}
+		}
+		else if(bitRead(patterns[i], _prev) == 1){
+			noteOff(i, 0);
 		}
 	}
 }
 
 void SynthPart::debug(){
-	bool clear = true;
-	for(int i = 0; i < 16; i++){
-		for(int j = 0; j < SLOT_COUNT; j++){
-			if(steps[i][j] != 0){
-				clear = false;
-				view->printf("s%2io%2iv%3i\n", i, j, steps[i][j]);
-			}
-		}
-	}
-	if(clear){
-		view->printf("clear %i\n", channel);
-	}
 
 }
 

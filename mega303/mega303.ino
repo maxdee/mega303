@@ -40,7 +40,7 @@ int modeIndex;
 
 
 bool doStep;
-int rate = 20;
+int rate = 14;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
