@@ -5,8 +5,6 @@ Unsatisfied with this GrooveBox's workflow, making a new instrument by taking ov
 ### Requires printf ###
 https://playground.arduino.cc/Main/Printf
 
-Since we only have 6 seven segment digits to write to, we reduce the buffer size: `#define PRINTF_BUF 16 // define the tmp buffer size (change if desired)`
-
 
 ### Knob Grid ###
 
