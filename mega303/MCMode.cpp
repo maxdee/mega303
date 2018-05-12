@@ -185,15 +185,16 @@ uint8_t MCMode::getKey(uint8_t _key){
 
 void MCMode::update(uint8_t _step){
 	currentStep = _step;
-	for(int i = 0; i < 16; i++){
-		if(bitRead(pressedKeys, i)){
-			for(int i = 0; i < PART_COUNT; i++){
-				if(bitRead(selectedParts, i)){
-					bitWrite(mcParts[i]->patterns[i + octave * 8], _step, 1);
-				}
-			}
-		}
-	}
+
+	// for(int i = 0; i < 16; i++){
+	// 	if(bitRead(pressedKeys, i)){
+	// 		for(int i = 0; i < PART_COUNT; i++){
+	// 			if(bitRead(selectedParts, i)){
+	// 				// bitWrite(mcParts[i]->patterns[i + octave * 8], _step, 1);
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 void MCMode::unSelectMode(){
@@ -215,7 +216,6 @@ void MCMode::controlParts(uint8_t _id, uint8_t _val){
 }
 
 void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
-
 	int _key = getKey(_id);
 	if(_key > 0){
 		// view->printf("%3i%3i", _id, _val);
@@ -224,12 +224,6 @@ void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
 			if(recordToggle){
 				bitWrite(pressedKeys, _id-127, 1);
 				partToggleStepPitch(currentStep, _key, 1);
-				//
-				// for(int i = 0; i < PART_COUNT; i++){
-				// 	if(bitRead(selectedParts, i)){
-				// 		bitWrite(mcParts[i]->patterns[_key], currentStep, 1);
-				// 	}
-				// }
 			}
 		}
 		else {
@@ -237,10 +231,6 @@ void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
 			if(recordToggle){
 				bitWrite(pressedKeys, _id-127, 0);
 				partToggleStepPitch(currentStep, _key, 0);
-				// for(int i = 0; i < PART_COUNT; i++){
-				// 	if(bitRead(selectedParts, i)){
-				// 	}
-				// }
 			}
 		}
 	}
@@ -324,7 +314,8 @@ void ModeOne::update(uint8_t _step){
 }
 
 void ModeOne::event(uint8_t _id, uint8_t _val){
-	MCMode::event(_id, _val);
+	uint8_t _i = _id;
+	MCMode::event(_i, _val);
 	// view->printf("%03d%03d", _id, _val);
 
 	if(_id == ENTER_BUTTON){
@@ -360,7 +351,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 	if(knobBank == 0){
 		switch(_id){
 			case POT_0:
-				controlParts(PART_DECAY, _val);
+				// controlParts(PART_DECAY, _val);
 				break;
 			case POT_1:
 				controlParts(PART_ATTACK, _val);
@@ -385,7 +376,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 	else if(knobBank == 1){
 		switch(_id){
 			case POT_0:
-				controlParts(PART_ATTACK, _val);
+				// controlParts(PART_ATTACK, _val);
 				break;
 			case POT_1:
 				controlParts(PART_VIBRATO_RATE, _val);
@@ -451,7 +442,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 	else if(knobBank == 4){
 		switch(_id){
 			case POT_0:
-				controlParts(PART_DRUM_PITCH, _val);
+				// controlParts(PART_DRUM_PITCH, _val);
 				break;
 			case POT_1:
 				controlParts(PART_DRUM_TVA, _val);
