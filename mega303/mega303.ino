@@ -131,8 +131,7 @@ void timed(){
         // mcParts[i].update();
     }
     for(int i = 0; i < MODE_COUNT; i++){
-        mode[i]->update(step);
-
+        if(doStep)mode[i]->update(step);
     }
     doStep = false;
 }

@@ -186,15 +186,16 @@ uint8_t MCMode::getKey(uint8_t _key){
 void MCMode::update(uint8_t _step){
 	currentStep = _step;
 
-	// for(int i = 0; i < 16; i++){
-	// 	if(bitRead(pressedKeys, i)){
-	// 		for(int i = 0; i < PART_COUNT; i++){
-	// 			if(bitRead(selectedParts, i)){
-	// 				// bitWrite(mcParts[i]->patterns[i + octave * 8], _step, 1);
-	// 			}
-	// 		}
-	// 	}
-	// }
+	for(int j = 0; j < PART_COUNT; j++){
+		if(bitRead(selectedParts, j)){
+			for(int i = 0; i < 16; i++){
+				if(bitRead(pressedKeys, i)){
+					bitWrite(mcParts[i]->patterns[getKey(i+127)], _step, 1);
+					view->printf("%3i%3i",_step, getKey(i+127));
+				}
+			}
+		}
+	}
 }
 
 void MCMode::unSelectMode(){
@@ -351,7 +352,6 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 	if(knobBank == 0){
 		switch(_id){
 			case POT_0:
-				// controlParts(PART_DECAY, _val);
 				break;
 			case POT_1:
 				controlParts(PART_ATTACK, _val);
@@ -433,6 +433,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 			case POT_4:
 				break;
 			case POT_5:
+				controlParts(PART_DECAY, _val);
 				break;
 			case POT_6:
 				controlParts(PART_REVERB_DEPTH, _val);
@@ -448,7 +449,7 @@ void ModeOne::knobBanks(uint8_t _id, uint8_t _val){
 				controlParts(PART_DRUM_TVA, _val);
 				break;
 			case POT_2:
-				controlParts(PART_DRUM_PAN, _val);
+				controlParts(PART_DRUM_PITCH, _val);
 				break;
 			case POT_3:
 				controlParts(PART_DRUM_REVERB, _val);

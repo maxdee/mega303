@@ -341,9 +341,10 @@ void SynthPart::begin(HardwareSerial * _serial, MCView * _view, uint8_t _chan){
 void SynthPart::step(int _step){
 	currentStep = _step;
 	int _prev = _step-1;
-	if(_prev < 0) _prev = 15; // STEP_COUNT??
+	if(_prev < 0) _prev = 15;
 	for(int i = 0; i < 127; i++){
 		if( bitRead(patterns[i], _step) == 1){
+			// view->println(patterns[i], BIN);
 			if(bitRead(patterns[i], _prev) == 0){
 				if(!mute) noteOn(i, 100);
 			}
