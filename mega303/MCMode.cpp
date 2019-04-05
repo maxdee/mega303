@@ -256,6 +256,7 @@ void MCMode::sequenceEdit(uint8_t _id, uint8_t _val){
 void MCMode::partToggleStepPitch(uint8_t _step, uint8_t _pitch, uint8_t _state){
 	for(int i = 0; i < PART_COUNT; i++){
 		if(bitRead(selectedParts, i)){
+			// Serial.printf("%03d, %03d\n", i, _pitch);
 			bitWrite(mcParts[i]->patterns[_pitch], _step, _state);
 		}
 	}

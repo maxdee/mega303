@@ -132,6 +132,7 @@ void MCPart::step(int _step){
 
 
 void MCPart::noteOn(uint8_t _pitch, uint8_t _vel){
+	// view -> printf("%03d%03d", channel, _pitch );
 	serial -> write(0x90 | channel);
 	serial -> write(_pitch);
 	serial -> write(_vel);
