@@ -156,7 +156,7 @@ void MCPart::programChange(uint8_t _val){
 }
 //F0H || 41H 10H 00H 03H 12H || 00H 40H 01H 30H || 06H || checksum 09h || F7H
 //
-void MCPart::midiSysEx(uint8_t * _addr, uint8_t value){
+void MCPart::midiSysEx(const uint8_t * _addr, uint8_t value){
 	byte data[13] = {0xF0, // 0
 		 			0x41, 0x10, 0x00, 0x03, 0x12, // 1 2 3 4 5
 					0x00, 0x00, 0x00, 0x00, // 6 7 8 9

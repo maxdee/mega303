@@ -3,8 +3,9 @@
 #define MCMode_h
 
 #include "Arduino.h"
-#include "MCConstants.h"
-#include "MCInput.h"
+#include "LEDMap.h"
+#include "Shared.h"
+
 #include "MCPart.h"
 #include "MCView.h"
 
@@ -21,7 +22,7 @@ class MCMode {
 		virtual void update(uint8_t _step);
 		virtual void event(uint8_t _id, uint8_t _val);
 		virtual uint8_t getKey(uint8_t _key);
-		void setInput(MCInput * _input);
+		uint8_t checkInput(uint8_t _idx);
 		void setParts(MCPart ** _parts);
 		void setDrumPart(DrumPart * _drums);
 		void selectMode();
@@ -36,8 +37,8 @@ class MCMode {
 		void drumSequenceEdit(uint8_t _id, uint8_t _val);
 		void sequenceEdit(uint8_t _id, uint8_t _val);
 
-
-		MCInput * mcInput;
+		// this holds the state of all events, buttons and pots
+		static uint8_t input_buffer[256];
 
 		uint8_t selectedParts;
 		uint8_t mutedParts;

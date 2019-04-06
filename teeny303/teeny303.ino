@@ -2,12 +2,11 @@
 #include "TimerThree.h"
 
 // #include "patches.h"
-#include "MCInput.h"
 #include "MCView.h"
 
 #include "MCPart.h"
-#include "MCConstants.h"
 #include "MCMode.h"
+#include "LEDMap.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEQ stuff
@@ -16,7 +15,6 @@
 int step = 0;
 uint16_t cycleCount = 0;
 
-MCInput input;
 MCView view;
 MCPart * mcParts[PART_COUNT];
 DrumPart drumPart;
@@ -40,13 +38,24 @@ int modeIndex;
 
 
 bool doStep;
-int rate = 14;
+int rate = 100000;
+
+HardwareSerial * mcMidi;
+HardwareSerial * midiInput;
+
+HardwareSerial * megaSerial;
 
 void setup() {
     // set the data rate for the SoftwareSerial port (MIDI rate)
-    Serial1.begin(31250); // midi for the mc303
-    Serial2.begin(31250); // midi jacks on the back
-	Serial.begin(9600); // usb debugging
+    Serial1.begin(115200); // coms with the mega
+    megaSerial = &Serial1;
+    Serial2.begin(31250); // midi for the mc303
+    midiInput = &Serial2;
+    Serial3.begin(31250);// midi jacks on the back
+    mcMidi = &Serial3;
+
+	Serial.begin(115200); // usb debugging
+    Serial.println("bootin");
     // Timer1.initialize(5000);
     // Timer1.attachInterrupt(timed);
     // Timer3.initialize(1000);
@@ -56,9 +65,9 @@ void setup() {
     soundModuleMode();
     // const FlashString F("YES3.0.3")
     // mc303 buttons and pots
-    input.setEventCallback(event);
-    view.begin(&input);
-    view.printf("YES3.0.3");
+    // view.begin(&input);
+    view.printf("Foo3.0.3");
+
 
     // mcPart.releaseTime(110);
     // mcPart.portamentoTime(0);
@@ -83,7 +92,7 @@ void setup() {
 
     for(int i = 0; i < MODE_COUNT; i++){
         mode[i]->begin(&view);
-        mode[i]->setInput(&input);
+        // mode[i]->setInput(&input);
         mode[i]->setParts(mcParts);
         mode[i]->setDrumPart(&drumPart);
         // for(int i = 0; i < PART_COUNT; i++){
@@ -96,14 +105,29 @@ void setup() {
 }
 
 void setupPart(uint8_t _i){
-    mcParts[_i]->begin(&Serial1, &view, _i == 0 ? 9 : _i);
+    mcParts[_i]->begin(mcMidi, &view, _i == 0 ? 9 : _i);
 }
 
-void loop() {
-    input.update();
-    timed();
 
-    // Serial.println(input.checkButton(4,0));
+
+
+
+void loop() {
+    // input.update();
+    if(megaSerial->available() > 1){
+        uint8_t _cmd = megaSerial->read();
+        uint8_t _val = megaSerial->read();
+        event(_cmd, _val);
+        // Serial.printf("%03i%03i\n", _cmd, _val);
+        // view.printf("%03i%03i\n", _cmd, _val);
+        // view.ledUpdate = true;
+    }
+    if(view.doLEDupdate(step)){
+        megaSerial->write(42);
+        megaSerial->write(view.LEDOutput, 16);
+    }
+    timed();
+    // Serial.println(input.checkInput(4,0));
     // snifMidiIn();
 }
 
@@ -122,11 +146,12 @@ void timed(){
         step%=16;
         doStep = true;
         // view.printf("STP%3i", step);
-        input.setStep(step);
+        // input.setStep(step);
     }
     for(int i = 0; i < PART_COUNT; i++){
         if(doStep){
             mcParts[i]->step(step);
+            view.ledUpdate = true;
         }
         // mcParts[i].update();
     }
@@ -148,11 +173,10 @@ void setMode(int _mode){
     modeIndex %= MODE_COUNT;
     mode[modeIndex]->selectMode();
     char _buf[12];
-    sprintf(_buf, "MoD%03d", modeIndex);
-    input.displayString(_buf);
+    view.printf("MoD%03d", modeIndex);
 }
 
-void event(int _index, int _state){
+void event(uint8_t _index, uint8_t _state){
     // char _buf[12];
     // sprintf(_buf, "%03d%03d", _index, _state);
     // input.displayString(_buf);
@@ -161,7 +185,7 @@ void event(int _index, int _state){
     // Serial.println(_state);
 
     mode[modeIndex]->event(_index, _state);
-    if(_state == 1 && input.checkButton(SHIFT_BUTTON)){
+    if(_state == 1 && mode[modeIndex]->checkInput(SHIFT_BUTTON)){
         if(_index == SELECT_LEFT_BUTTON) setMode(modeIndex-1);
         else if(_index == SELECT_RIGHT_BUTTON) setMode(modeIndex+1);
     }
@@ -194,7 +218,7 @@ void soundModuleMode(){
 }
 
 void midiByte(byte _b){
-    Serial1.write(_b);
+    Serial2.write(_b);
 }
 
 // Send sysex data

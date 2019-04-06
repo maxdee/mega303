@@ -3,10 +3,81 @@
 #define MCPart_h
 
 #include "Arduino.h"
-#include "MCConstants.h"
 #include "MCView.h"
+#include "SynthMap.h"
+#include "LEDMap.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Parameters
+///////////////////////////////////////////////////////////////////////////////
+enum PartStuff{
+ PART_NOTE_OFF,
+ PART_NOTE_ON,
+ PART_CONTROL_CHANGE,
+ PART_PROGRAM_CHANGE,
+ PART_PATCH,
+ PART_KIT,
+ PART_COARSE_TUNE,
+ PART_FINE_TUNE,
+ PART_CUTOFF,
+ PART_RESONANCE,
+ PART_PORTAMENTO_TIME,
+ PART_VIBRATO_RATE,
+ PART_VIBRATO_DEPTH,
+ PART_VIBRATO_DELAY,
+ PART_ATTACK,
+ PART_DECAY,
+ PART_RELEASE,
+ PART_DRUM_PITCH,
+ PART_DRUM_TVA,
+ PART_DRUM_PAN,
+ PART_DRUM_REVERB,
+ PART_DRUM_CHORUS,
+ PART_PAN,
+ PART_VOLUME,
+ PART_MODULATION,
+ PART_EXPRESSION,
+ PART_SUSTAIN,
+ PART_REVERB_DEPTH,
+ PART_CHORUS_DEPTH,
+ PART_MUTE,
+
+ REVERB_TYPE,
+ REVERB_TIME,
+ REVERB_FEEDBACK,
+ CHORUS_TYPE,
+ CHORUS_RATE,
+ CHORUS_FEEDBACK,
+ PART_ADD_NOTE,
+ PART_CLEAR_STEP,
+ PART_CLEAR_ALL
+};
 
 
+
+// something like this?
+// typedef struct {
+// 	int steps[16]; // notes 1-127
+// 	int changed; // changes if any step modified
+// } sixteenStep;
+
+// const uint8_t PROGRAM_BANKS[] = {20, 15, 20, 20, 9, 8, 20, 13, 13, 12, 11, 12, 17, 16, 13, 10, 20, 11, 19, 12, 11, 14};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Notes
+///////////////////////////////////////////////////////////////////////////////
+/**
+ * MCInput produces events with a ID and a value
+ * MCMode takes these ID and produces and parameter change for parts.
+ * ID 127 to 142 step buttons
+ * ID 143 to 149 pots
+ *
+ */
+
+#define STEP_COUNT 16
+#define SLOT_COUNT 8
+#define PART_COUNT 8
 
 class MCPart {
 	public:
@@ -26,7 +97,7 @@ class MCPart {
 		void noteOff(uint8_t _pitch, uint8_t _vel);
 		void controlChange(uint8_t _cc, uint8_t _val);
 		void programChange(uint8_t _val);
-		void midiSysEx(uint8_t * _addr, uint8_t value);
+		void midiSysEx(const uint8_t * _addr, uint8_t value);
 		byte GetRolandChecksum(byte * data, int length);
 
 		// void setPatch(uint8_t _bank, uint8_t _pc);

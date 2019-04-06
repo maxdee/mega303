@@ -6,12 +6,15 @@
 // bool MCMode::recordToggle;
 uint8_t MCMode::octave;
 uint8_t MCMode::selectRadio;
+uint8_t MCMode::input_buffer[256];
 
 MCMode::MCMode(){
 	octave = 0;
 	functionToggle = false;
 	recordToggle = false;
 	pressedKeys = 0;
+	memset(input_buffer, 0, sizeof(input_buffer));
+
 }
 
 void MCMode::begin(MCView * _view){
@@ -21,8 +24,8 @@ void MCMode::begin(MCView * _view){
 	knobBank = 0;
 }
 
-void MCMode::setInput(MCInput * _input){
-	mcInput = _input;
+uint8_t MCMode::checkInput(uint8_t _idx){
+	return input_buffer[_idx];
 }
 
 void MCMode::setParts(MCPart ** _mcParts){
@@ -37,22 +40,24 @@ void MCMode::partSelecting(uint8_t _id){
 	int tmp = _id - ID_MIN_PART;
 	if(partSelectToggle){
 		selectedParts ^= 1 << tmp;
-		mcInput->setPartSelectLEDs(selectedParts);
+		view->setPartSelectLEDs(selectedParts);
 	}
 	else if(partMuteToggle){
 		mutedParts ^= 1 << tmp;
-		mcInput->setPartSelectLEDs(mutedParts);
+		view->setPartSelectLEDs(mutedParts);
 		for(int i = 0; i < 8; i++){
 			mcParts[i]->event(PART_MUTE, bitRead(mutedParts, i));
 		}
 	}
 	else if(rhythmMuteToggle){
 		rhythmMute ^= 1 << tmp;
-		mcInput->setPartSelectLEDs(rhythmMute);
+		view->setPartSelectLEDs(rhythmMute);
 	}
 }
 
 void MCMode::event(uint8_t _id, uint8_t _val){
+	input_buffer[_id] = _val;
+
 	if(_val){
 		// check for part selection
 		if(_id >= ID_MIN_PART && _id <= ID_MAX_PART){
@@ -75,74 +80,74 @@ void MCMode::event(uint8_t _id, uint8_t _val){
 			else octave--;
 			if(octave > 12) octave = 12;
 			else if(octave < 0) octave = 0;
-			if(octave == 0) mcInput->setLED(OCTAVE_DOWN_LED, 1);
-			else if(octave == 12) mcInput->setLED(OCTAVE_UP_LED, 1);
+			if(octave == 0) view->setLED(OCTAVE_DOWN_LED, 1);
+			else if(octave == 12) view->setLED(OCTAVE_UP_LED, 1);
 			else {
-				mcInput->setLED(OCTAVE_DOWN_LED, 0);
-				mcInput->setLED(OCTAVE_UP_LED, 0);
+				view->setLED(OCTAVE_DOWN_LED, 0);
+				view->setLED(OCTAVE_UP_LED, 0);
 			}
 			view->printf("OCT%03d", octave);
 		}
 		// select radio section
-		else if(!mcInput->checkButton(SHIFT_BUTTON) && _id == SELECT_RIGHT_BUTTON || _id == SELECT_LEFT_BUTTON){
-			mcInput->setLED(selectRadio, 0);
+		else if(checkInput(SHIFT_BUTTON) == 0 && _id == SELECT_RIGHT_BUTTON || _id == SELECT_LEFT_BUTTON){
+			view->setLED(selectRadio, 0);
 			if(_id == SELECT_RIGHT_BUTTON) selectRadio++;
 			else selectRadio--;
 			if(selectRadio > 92) selectRadio = 92;
 			else if(selectRadio < 88) selectRadio = 88;
-			mcInput->setLED(selectRadio, 1);
+			view->setLED(selectRadio, 1);
 		}
 		// toggles
 		else {
 			switch(_id){
 				case FUNC_BUTTON:
 					functionToggle = !functionToggle;
-					mcInput->setLED(FUNC_LED, functionToggle);
+					view->setLED(FUNC_LED, functionToggle);
 					break;
 				case REC_BUTTON:
 					recordToggle = !recordToggle;
-					mcInput->setLED(REC_LED, recordToggle);
+					view->setLED(REC_LED, recordToggle);
 					break;
 				case SELECT_PART_BUTTON:
 					partSelectToggle = true;
-					mcInput->setPartSelectLEDs(selectedParts);
+					view->setPartSelectLEDs(selectedParts);
 
 					partMuteToggle = false;
 					rhythmMuteToggle = false;
-					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
-					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
-					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+					view->setLED(SELECT_PART_LED, partSelectToggle);
+					view->setLED(MUTE_PART_LED, partMuteToggle);
+					view->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
 					break;
 				case MUTE_PART_BUTTON:
 					partSelectToggle = false;
 					partMuteToggle = true;
-					mcInput->setPartSelectLEDs(mutedParts);
+					view->setPartSelectLEDs(mutedParts);
 
 					rhythmMuteToggle = false;
-					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
-					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
-					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+					view->setLED(SELECT_PART_LED, partSelectToggle);
+					view->setLED(MUTE_PART_LED, partMuteToggle);
+					view->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
 					break;
 				case RHYTHM_MUTE_BUTTON:
 					partSelectToggle = false;
 					partMuteToggle = false;
 					rhythmMuteToggle = true;
-					mcInput->setPartSelectLEDs(rhythmMute);
-					mcInput->setLED(SELECT_PART_LED, partSelectToggle);
-					mcInput->setLED(MUTE_PART_LED, partMuteToggle);
-					mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+					view->setPartSelectLEDs(rhythmMute);
+					view->setLED(SELECT_PART_LED, partSelectToggle);
+					view->setLED(MUTE_PART_LED, partMuteToggle);
+					view->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
 					break;
 				// case SELECT_PART_BUTTON:
 				// 	partSelectToggle = !partSelectToggle;
-				// 	mcInput->setLED(SELECT_PART_LED, partSelectToggle);
+				// 	view->setLED(SELECT_PART_LED, partSelectToggle);
 				// 	break;
 				// case MUTE_PART_BUTTON:
 				// 	partMuteToggle = !partMuteToggle;
-				// 	mcInput->setLED(MUTE_PART_LED, partMuteToggle);
+				// 	view->setLED(MUTE_PART_LED, partMuteToggle);
 				// 	break;
 				// case RHYTHM_MUTE_BUTTON:
 				// 	rhythmMuteToggle = !rhythmMuteToggle;
-				// 	mcInput->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
+				// 	view->setLED(RHYTHM_MUTE_LED, rhythmMuteToggle);
 				// 	break;
 			}
 		}
@@ -199,11 +204,11 @@ void MCMode::update(uint8_t _step){
 }
 
 void MCMode::unSelectMode(){
-	memcpy(localLEDState, (*mcInput).LEDStates, 16);
+	memcpy(localLEDState, view->LEDStates, 16);
 }
 
 void MCMode::selectMode(){
-	memcpy((*mcInput).LEDStates, localLEDState, 16);
+	memcpy(view->LEDStates, localLEDState, 16);
 }
 
 void MCMode::controlParts(uint8_t _id, uint8_t _val){
@@ -273,7 +278,7 @@ void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 				selectedPitch = _key;
 
 				uint16_t _pat = drumPart->patterns[selectedPitch];
-				mcInput->setStepLEDs(_pat);
+				view->setStepLEDs(_pat);
 
 				controlParts(PART_NOTE_ON, _key);
 
@@ -289,7 +294,7 @@ void MCMode::drumSequenceEdit(uint8_t _id, uint8_t _val){
 					uint16_t _pat = drumPart->patterns[selectedPitch];
 					bitWrite(_pat, _id-128, !bitRead(_pat, _id-128));
 					drumPart->patterns[selectedPitch] = _pat;
-					mcInput->setStepLEDs(_pat);
+					view->setStepLEDs(_pat);
 				}
 			}
 		}

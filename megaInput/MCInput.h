@@ -3,27 +3,24 @@
 #define MCInput_h
 
 #include "Arduino.h"
-#include "Font.h"
-#include "MCConstants.h"
-// #include "MC"
+#include "Shared.h"
+
 // http://forum.arduino.cc/index.php?topic=65095.0
 class MCInput {
 	public:
 		MCInput();
 		void update();
-		void setLED(uint8_t _index, uint8_t _state);
-		void setStepLEDs(uint16_t _v);
-		void setPartSelectLEDs(uint8_t);
+
 		bool checkButton(uint8_t _id);
 		// bool checkButton(uint8_t _row, uint8_t _col);
 
 		void frequentCheck();
-		void displayString(char _str[]);
-		void pushDigit(char _c);
-		void displayBytes(byte _bytes[]);
+		// void displayString(char _str[]);
+		// void pushDigit(char _c);
+		// void displayBytes(byte _bytes[]);
 		// states?
 		void setEventCallback(void (*_eventCallback)(int, int));
-		void setStep(uint8_t _step);
+		// void setStep(uint8_t _step);
 	private:
 		void (*eventCallback)(int,int);
 
@@ -45,6 +42,8 @@ class MCInput {
 			uint8_t tmp;
 		    int val;
 		} Encoder;
+
+
 		// Pins
 		#define dirPin 23
 		#define tapButton 45
@@ -66,9 +65,9 @@ class MCInput {
 		// Pins for row multiplexer
 		uint8_t rowMuxPins[4] = {47, 49, 51, 53};
 		// row indexs for 7 segments
-		uint8_t segmentRows[6] = {6, 3, 12, 13, 10, 15};
+		// uint8_t segmentRows[6] = {6, 3, 12, 13, 10, 15};
 
-		uint8_t step;
+		// uint8_t step;
 
 		// rows
 		uint8_t rowBytes[16] = {
@@ -90,6 +89,12 @@ class MCInput {
 			B00001101,
 			B00001111,
 		};
+		const uint8_t STEP_LOOKUP[40] = {9, 10, 11, 12, 13, 14, 15, 16,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 0, 0, 0, 0, 0, 0, 0, 0,
+							 1, 2, 3, 4, 5, 6, 7, 8
+						 	};
 		// next circuit version will use port manipulation...
 
 		// LED column states
